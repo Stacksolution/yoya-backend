@@ -3,6 +3,7 @@
 */logs/log-*.php
 !*/logs/index.html
 */cache/*
+error_log
 !system/cache/*
 !*/cache/index.html
 !*/cache/.htaccess
@@ -21,4 +22,5 @@ application/logs/*
 #codeigniter upload 3
 uploads/document/*
 uploads/profile/*
+
 ### CodeIgniter Patch ###
