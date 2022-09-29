@@ -5,7 +5,7 @@ class Outstation extends API_Controller {
     /**
 	 * @method : cities()
 	 * @date : 2022-09-29
-	 * @about: This method use for fetch out station city 
+	 * @about: This method use for fetch out station citis 
 	 * */
 	 public function cities(){
 	     try    
