@@ -7,7 +7,6 @@ class MY_Controller extends CI_Controller{
 }
 
 class MY_CronController extends CI_Controller{
-
     public function __construct() {
         parent::__construct();
         $this->load->model('cron-models/RequestModel');
@@ -51,6 +50,7 @@ class MY_ApiController extends CI_Controller{
         $this->load->model('apis-models/v1/ConversationsModel');
         $this->load->model('apis-models/v1/RentalModel');
         $this->load->model('apis-models/v1/RentalFareModel');
+        $this->load->model('apis-models/v1/OutstationModel');
         //library
         $this->load->library('password');
         $this->load->library('base64fileuploads');

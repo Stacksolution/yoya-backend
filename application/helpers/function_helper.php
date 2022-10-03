@@ -71,6 +71,23 @@ if (!function_exists('dateFormat')) {
     }
 }
 
+
+//The first parameter specifies the type of date formet, the second parameter specifies the date.
+if (!function_exists('api_date_take')) {
+    function api_date_take($date = null, $format = 'Y-m-d H:i') {
+        $formetdate = date($format, strtotime($date));
+        return $formetdate;
+    }
+}
+
+//The first parameter specifies the type of date formet, the second parameter specifies the date.
+if (!function_exists('api_date_give')) {
+    function api_date_give($date = null, $format = 'd M Y H:i') {
+        $formetdate = date($format, strtotime($date));
+        return $formetdate;
+    }
+}
+
 //The function use for check image exist or not..
 if (!function_exists('uploads_image')) {
     function uploads_image($file_path = null) {
@@ -111,3 +128,20 @@ if (!function_exists('dd')) {
         exit;
     }
 }
+//this function chek date is vaildate or not 
+if (!function_exists('is_old_date')) {
+    function is_old_date($date,$current_date = null ) {
+        if(empty($current_date)){
+            $current_date = date('Y-m-d H:i');
+        }
+        $current_date = strtotime($current_date);
+        $compare_date = strtotime($date);
+        if($current_date > $compare_date){
+            return true;
+        }else{
+            return false;
+        }
+        
+    }
+}
+

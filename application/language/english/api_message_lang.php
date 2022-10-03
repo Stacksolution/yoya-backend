@@ -32,7 +32,7 @@ $lang['error_pickup_longitude_missing'] = "Pickup longitude is empty Or missing 
 $lang['error_pickup_address_missing']   = "Pickup address is empty Or missing  !";
 $lang['error_pickup_city_missing']	    = "Pickup city is empty Or missing  !";
 $lang['error_payment_mode_missing']     = "Payment mode is empty Or missing  !";
-$lang['error_booking_date_missing']     = "Ride Date is empty Or missing  !";
+$lang['error_booking_date_missing']     = "Ride Date is empty Or missing Or invalid Date !";
 $lang['error_booking_id_missing']     = "Booking ID is empty Or missing  !";
 
 $lang['error_drop_latitude_missing']    = "Destination latitude is empty Or missing  !";
