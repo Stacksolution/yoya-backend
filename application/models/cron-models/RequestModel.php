@@ -40,4 +40,37 @@ class RequestModel extends CI_Model {
 		  return;
 		}
 	}
+
+	public function fetch_recently_request_outstation(){
+		try {
+			$this->db->select('*');
+			$this->db->from($this->db->dbprefix('order_request'));
+			$this->db->where('date(request_update_at) >=', date('Y-m-d'));
+            $this->db->where('date(request_update_at) <=', date('Y-m-d'));
+			$this->db->where('request_status','1');
+			$this->db->where('request_mode','outstation');
+			$return = $this->db->get();
+			return $return->result();
+		} catch (Exception $e) {
+		  log_message('error',$e->getMessage());
+		  return;
+		}
+	}
+
+	public function fetch_single($where){
+		try {
+			$this->db->select('*');
+			$this->db->from($this->db->dbprefix('order_request'));
+			$this->db->where($where);
+			$return = $this->db->get();
+			foreach($return->result() as $key => $data){
+				$return->result()[$key]->request_drop_locations = $this->DropModel->fetch_drop_point(array('drop_request_id'=>$data->request_id))->result();
+			}
+			return $return->row();
+        
+		} catch (Exception $e) {
+		  log_message('error',$e->getMessage());
+		  return;
+		}
+	}
 }

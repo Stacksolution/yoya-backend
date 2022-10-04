@@ -145,3 +145,16 @@ if (!function_exists('is_old_date')) {
     }
 }
 
+//this function use for check time and duration     
+if (!function_exists('tow_date_compare')) {
+    function tow_date_compare($date,$current_date = null ) {
+        if(empty($current_date)){
+            $current_date = date('Y-m-d H:i');
+        }
+        $current_date = strtotime($current_date);
+        $compare_date = strtotime($date);
+        $hourdiff = (round(($current_date - $compare_date)/3600, 1));
+        return $hourdiff;
+    }
+}
+
