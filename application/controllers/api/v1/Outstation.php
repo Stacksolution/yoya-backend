@@ -34,7 +34,7 @@ class Outstation extends API_Controller {
             }
             
             if($result->num_rows() <= 0){
-                $this->api_return(array('status' =>true,'message' =>lang('data_found'),'data'=>$result->result()),self::HTTP_OK);exit();
+                $this->api_return(array('status' =>false,'message' =>lang('data_not_found'),'data'=>array()),self::HTTP_OK);exit();
             }
 
 	        $this->api_return(array('status' =>true,'message' =>lang('data_found'),'data'=>$result->result()),self::HTTP_OK);exit();
@@ -85,6 +85,9 @@ class Outstation extends API_Controller {
 			$booking_date_from = api_date_take($post->booking_date);
 			$booking_date_to = date('Y-m-d H:i:s');
 			if(!empty(@$post->booking_date_to)){
+				if(empty($post->booking_date_to) || !isset($post->booking_date_to) || is_old_date($post->booking_date_to)){
+                    $this->api_return(array('status' =>false,'message' => lang('error_booking_date_missing')),self::HTTP_BAD_REQUEST);exit();
+                }
 				$booking_date_to = api_date_take($post->booking_date_to);
 			}
 			//fetch city id by city name this city id use for fetch city wise price 
@@ -168,7 +171,6 @@ class Outstation extends API_Controller {
    		 	$this->api_return(array('status' =>false,'message' => $e->getMessage()),self::HTTP_SERVER_ERROR);exit();
 		}
 	}
-
 	/**
 	 * @method : update()
 	 * @date : 2022-10-03
@@ -186,12 +188,24 @@ class Outstation extends API_Controller {
 	        if(empty($post->request_id) || !isset($post->request_id)){
 		        $this->api_return(array('status' =>false,'message' => lang('error_user_id_missing')),self::HTTP_BAD_REQUEST);exit();
 	        }
-	        if(empty($post->payment_method) || !isset($post->payment_method)){
-		        $this->api_return(array('status' =>false,'message' => lang('error_payment_mode_missing')),self::HTTP_BAD_REQUEST);exit();
+			if(empty($post->vehicle_id) || !isset($post->vehicle_id)){
+				$this->api_return(array('status' =>false,'message' => lang('error_vehicle_type_missing')),self::HTTP_BAD_REQUEST);exit();
+			}
+	        if(empty($post->pickup_type) || !isset($post->pickup_type)){
+		        $this->api_return(array('status' =>false,'message' => "Pickup type missing or empty !"),self::HTTP_BAD_REQUEST);exit();
 	        }
-	        if(empty($post->vehicle_id) || !isset($post->vehicle_id)){
-		        $this->api_return(array('status' =>false,'message' => lang('error_vehicle_type_missing')),self::HTTP_BAD_REQUEST);exit();
+			if(empty($post->booking_date) || !isset($post->booking_date) || is_old_date($post->booking_date)){
+		        $this->api_return(array('status' =>false,'message' => lang('error_booking_date_missing')),self::HTTP_BAD_REQUEST);exit();
 	        }
+			// date customize and make correct date for booking from and to 
+			$booking_date_from = api_date_take($post->booking_date);
+			$booking_date_to = date('Y-m-d H:i:s');
+			if(!empty(@$post->booking_date_to)){
+				if(empty($post->booking_date_to) || !isset($post->booking_date_to) || is_old_date($post->booking_date_to)){
+                    $this->api_return(array('status' =>false,'message' => lang('error_booking_date_missing')),self::HTTP_BAD_REQUEST);exit();
+                }
+				$booking_date_to = api_date_take($post->booking_date_to);
+			}
 			$request_id = $post->request_id;
 	        //check request se
 	        if(!$this->RequestModel->is_exist(array('request_id'=>$request_id))){
@@ -207,8 +221,7 @@ class Outstation extends API_Controller {
             $request_pickup_city_id = $request->request_pickup_city_id;
             $request_distance_value = $request->request_distance_value;
             $vehicle_id = $post->vehicle_id;
-			$booking_date_from = $request->request_booking_date;
-			$booking_date_to = $request->request_booking_date_to;
+			$country_id = $request->request_pickup_country_id;
 
             $result = $this->OutstationModel->vehicle_amount_calculate(
 				array(
@@ -223,14 +236,175 @@ class Outstation extends API_Controller {
 					)
 				)->row();
 
-			
+			$total_amount = $result->fare_total_amount_value;
+
 	        $users = $this->UsersModel->fetch_user_data_for_request_by_id($post->user_id);
 	        $request_data['request_user_details'] = json_encode($users);
-	        $request_data['request_payments_mode']= json_encode($post->payment_method);
 	        $request_data['request_vehicle_id'] = $post->vehicle_id;
+            $request_data['request_status'] = '0'; //for request is pendig or search
+			$request_data['request_total_amount'] = $total_amount;
+
+			//amount details manipulation
+			$courrency_code = currency_symbols(@$result->country->country_currency_symbols);
+			$amount_details = [
+	        	array(
+	        		'label'=>'Base Fare',
+	        		'value'=>$courrency_code.(string)round($result->fare_base_price),
+	        		'is_customer_visible'=>true,
+	        		'is_driver_visible'=>true
+	        	)
+	        ];
+
+			if($result->fare_driver_allowance > 0){
+				array_push(
+					$amount_details,
+					array(
+						'label'=>'Driver allowance',
+						'value'=>$courrency_code.(string)round($result->fare_driver_allowance),
+						'is_customer_visible'=>true,
+						'is_driver_visible'=>false
+					)
+				);
+			}
+			
+			array_push(
+				$amount_details,
+				array(
+					'label'=>'Night time allowance',
+					'value'=>$courrency_code.(string)round($result->fare_night_price),
+					'is_customer_visible'=>true,
+					'is_driver_visible'=>false
+				)
+			);
+			array_push(
+				$amount_details,
+				array(
+					'label'=>'Booking Fee',
+					'value'=>$courrency_code.(string)round($result->fare_night_price),
+					'is_customer_visible'=>true,
+					'is_driver_visible'=>false
+				)
+			);
+			array_push(
+				$amount_details,
+				array(
+					'label'=>'Play Convenience Fee',
+					'value'=>$courrency_code.(string)round($result->fare_night_price),
+					'is_customer_visible'=>true,
+					'is_driver_visible'=>false
+				)
+			);
+
+			$taxes  = $this->TaxesModel->fetch_taxes(array('tax_country_id'=>$country_id))->result();
+			//tax apply this booking
+	        $calculate_tax = 0;
+	        $taxes_amount  = 0;
+	        foreach($taxes as $key => $data){
+	            $calculate_tax = round($total_amount / 100 * $data->tax_rate);
+	            $taxes_amount  += $calculate_tax;
+	        }
+			if($taxes_amount > 0){
+				array_push(
+					$amount_details,
+					array(
+						'label'=>'Taxes',
+						'value'=>$courrency_code.(string)round($taxes_amount),
+						'is_customer_visible'=>true,
+						'is_driver_visible'=>false
+					)
+				);
+			}
+			$request_data['request_amout_details'] = json_encode($amount_details);
+
+			//api wise param
+			$request_data['request_outstaion_type'] = $post->pickup_type;
+			$request_data['request_mode'] = 'outstation';
+			$request_data['request_booking_type'] = 'current_ride';
+			$request_data['request_booking_date_to'] = $booking_date_to;	
+			$request_data['request_booking_date'] = $booking_date_from;	
+	        if($this->RequestModel->update(array('request_id'=>$post->request_id),$request_data)){
+	        	$this->api_return(array('status' =>true,'message' =>lang('ride_request_send'),'request_id'=>$post->request_id,'request_sent'=>false),self::HTTP_OK);exit();
+	        }else{
+	        	$this->api_return(array('status' =>false,'message' =>lang('server_error')),self::HTTP_SERVER_ERROR);exit();
+	        }
+    	}catch (Exception $e) {
+   		 	$this->api_return(array('status' =>false,'message' => $e->getMessage()),self::HTTP_SERVER_ERROR);exit();
+		}
+	}
+	/**
+	 * @method : view()
+	 * @date : 2022-10-07
+	 * @about: This method use for view request and amount details
+	 * 
+	 * */
+	public function view(){
+		try
+    	{
+    		$this->_apiConfig([
+	            'methods' => ['POST'],
+	            //'key' => ['header',$this->config->item('api_fixe_header_key')],
+	        ]);
+	        $post = json_decode(file_get_contents('php://input'));
+	        if(empty($post->request_id) || !isset($post->request_id)){
+		        $this->api_return(array('status' =>false,'message' => lang('error_request_id_missing')),self::HTTP_BAD_REQUEST);exit();
+	        }
+			if(empty($post->user_id) || !isset($post->user_id)){
+		        $this->api_return(array('status' =>false,'message' => lang('error_user_id_missing')),self::HTTP_BAD_REQUEST);exit();
+	        }
+            $request_id = $post->request_id;
+			$user_id = $post->user_id;
+	        //check request se
+	        if(!$this->RequestModel->is_exist(array('request_id'=>$request_id))){
+	        	$this->api_return(array('status' =>false,'message' => lang('data_not_found')),self::HTTP_BAD_REQUEST);exit();
+	        }
+	        
+	        $request = $this->RequestModel->fetch_single(array('request_id'=>$request_id));
+	        $request->request_discountable_amount = (string)($request->request_total_amount - $request->request_coupon_amount);
+		    $this->api_return(array('status' =>true,'message' =>lang('data_found'),'data'=>$request),self::HTTP_OK);exit();
+		}catch (Exception $e) {
+			$this->api_return(array('status' =>false,'message' => $e->getMessage()),self::HTTP_SERVER_ERROR);exit();
+		}
+	}
+	/**
+	 * @method : book()
+	 * @date : 2022-10-03
+	 * @about: This method use for update time and payment methods 
+	 * 
+	 * */
+	public function book(){
+		try
+    	{
+    		$this->_apiConfig([
+	            'methods' => ['POST'],
+	          //  'key' => ['header',$this->config->item('api_fixe_header_key')],
+	        ]);
+	        $post = json_decode(file_get_contents('php://input'));
+	        if(empty($post->request_id) || !isset($post->request_id)){
+		        $this->api_return(array('status' =>false,'message' => lang('error_user_id_missing')),self::HTTP_BAD_REQUEST);exit();
+	        }
+			if(empty($post->payment_method) || !isset($post->payment_method)){
+				$this->api_return(array('status' =>false,'message' => lang('error_payment_mode_missing')),self::HTTP_BAD_REQUEST);exit();
+			}
+	        
+			$request_id = $post->request_id;
+	        //check request se
+	        if(!$this->RequestModel->is_exist(array('request_id'=>$request_id))){
+	        	$this->api_return(array('status' =>false,'message' => lang('data_not_found')),self::HTTP_BAD_REQUEST);exit();
+	        }
+
+			$request = $this->RequestModel->fetch_single(array('request_id'=>$request_id));
+            if(empty($request)){
+                $this->api_return(array('status' =>false,'message' =>lang('server_error')),self::HTTP_SERVER_ERROR);exit();
+            }
+			
+            $request_time_value = $request->request_time_value;
+            $request_pickup_city_id = $request->request_pickup_city_id;
+            $request_distance_value = $request->request_distance_value;
+			$booking_date_from = $request->request_booking_date;
+			$booking_date_to = $request->request_booking_date_to;
+
+	        $request_data['request_payments_mode']= json_encode($post->payment_method);
             $request_data['request_status'] = '1'; //for request is pendig or search
-            $request_data['request_status'] = '1'; //for request is pendig or search
-			$request_data['request_total_amount'] = $result->fare_total_amount_value;
 	        if($this->RequestModel->update(array('request_id'=>$post->request_id),$request_data)){
 	        	if(in_array('cash',$post->payment_method,true)){
 		        	/*==============================================

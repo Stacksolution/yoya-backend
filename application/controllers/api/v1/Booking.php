@@ -60,7 +60,6 @@ class Booking extends API_Controller {
 	 * @method : start()
 	 * @date : 2022-07-12
 	 * @about: This method use for start bokking
-	 * 
 	 * */
 	 public function start(){
 	     try

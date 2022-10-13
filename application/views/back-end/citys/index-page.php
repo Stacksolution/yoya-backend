@@ -39,6 +39,7 @@
                         <thead class="table-light">
                            <tr>
                               <th class="align-middle">Sr.</th>
+                              <th class="align-middle">Icon</th>
                               <th class="align-middle">Country Name</th>
                               <th class="align-middle">State  Name</th>
                               <th class="align-middle">City  Name</th>
@@ -49,6 +50,11 @@
                            <?php foreach($citys->result() as $key => $data) { ?>
                            <tr>
                               <td><a href="javascript: void(0);" class="text-body fw-bold">#<?= $key + 1 ?></a> </td>
+                              <td>
+                                 <div class="align-self-center me-3">
+                                     <img src="<?= uploads_image($data->city_icon) ?>" class="rounded-circle avatar-xs" alt="">
+                                 </div>
+                              </td>
                               <td><?= $data->country_name ?></td>
                               <td><?= $data->state_name ?></td>
                               <td><?= $data->city_name ?></td>

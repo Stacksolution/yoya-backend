@@ -1,10 +1,5 @@
 <?php include(__DIR__.'/../common/_header.php'); ?>
 <?php include(__DIR__.'/../common/_sidebar.php'); ?>
-<!-- page wise css -->
-<script src="<?= base_url('back-end') ?>/ckeditor/ckeditor.js" type="text/javascript"></script>
-<link href="<?= base_url('back-end') ?>/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css">
-<link rel="stylesheet" href="<?= base_url('back-end') ?>/libs/%40chenfengyuan/datepicker/datepicker.min.css">
-<!-- page wise css -->
 <div class="page-content">
    <div class="container-fluid">
       <div class="row">
@@ -74,7 +69,7 @@
                        <div class="col-md-12">
                            <label>Vahicle Description</label>
                            <div class="input-group" id="Phone">
-                              <textarea  name="vehicle_description" placeholder="Description" required class="form-control" rows="3"><?= set_value('vehicle_description') ?></textarea
+                              <textarea  name="vehicle_description" placeholder="Description" required class="form-control" rows="3"><?= set_value('vehicle_description') ?></textarea>
                           </div>
                            <?= form_error('vehicle_description', '<div class="error">', '</div>'); ?>
                          </div>
@@ -95,7 +90,3 @@
 </div>
 <!-- End Page-content -->
 <?php include(__DIR__.'/../common/_footer.php'); ?>
-<script> CKEDITOR.replace( 'page_description' ); </script>
-<script src="<?= base_url('back-end') ?>/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
-<script src="<?= base_url('back-end') ?>/js/pages/form-advanced.init.js"></script>
-<script src="<?= base_url('back-end') ?>/libs/simplebar/simplebar.min.js"></script>

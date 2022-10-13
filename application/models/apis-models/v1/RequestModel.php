@@ -50,6 +50,7 @@ class RequestModel extends CI_Model {
 			$this->db->where($where);
 			$return = $this->db->get();
 			foreach($return->result() as $key => $data){
+				$return->result()[$key]->request_amout_details  = !empty($data->request_amout_details) ? json_decode($data->request_amout_details): ''; 
 				$return->result()[$key]->request_drop_locations = $this->DropModel->fetch_drop_point(array('drop_request_id'=>$data->request_id))->result();
 			}
 			return $return->row();
