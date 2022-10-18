@@ -40,13 +40,16 @@
             <li>
                <a href="javascript: void(0);" class="has-arrow waves-effect">
                <i class="bx bxs-truck"></i>
-               <span key="t-vehicle"><span>Manage Vehicles</span>
+               <span key="t-vehicle"><span>Manage Vehicles </span>
                </a>
                <ul class="sub-menu"Vehicle aria-expanded="false">
                   <li><a href="<?= site_url('admin/vehicletype') ?>" key="t-vehicletype">Vehicles type</a></li>
                   <li><a href="<?= site_url('admin/vehicle') ?>" key="t-vehicle">Vehicles</a></li>
                   <li><a href="<?= site_url('admin/vehiclefare') ?>" key="t-vehicle">Vehicles Fare</a></li>
                   <li><a href="<?= site_url('admin/packagefare') ?>" key="t-vehicle">Package Fare</a></li>
+                  <li><a href="<?= site_url('admin/rental') ?>" key="t-vehicle">Rental Fare</a></li>
+                  <li><a href="<?= site_url('admin/') ?>" key="t-vehicle">Outstation Fare</a></li>
+                  <li><a href="<?= site_url('admin/transport') ?>" key="t-vehicle">Transport Fare</a></li>
                </ul>
             </li>
              <li>

@@ -153,6 +153,8 @@ class MY_AdminController extends MY_Controller {
         $this->load->model('admin-models/RequiredDocumentModel');
         $this->load->model('admin-models/WalletModel');
         $this->load->model('admin-models/PackageFareModel');
+        $this->load->model('admin-models/RentalFareModel');
+        $this->load->model('admin-models/RentalPakageModel');
     }
 }
 
