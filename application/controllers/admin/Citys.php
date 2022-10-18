@@ -6,6 +6,7 @@ class Citys extends MY_AdminController {
         parent::__construct(); 
         is_logged_out(); // if user is logout Or session is expired then redirect login
         $this->data['country'] = $this->CountrysModel->_dropdownlist();
+		$this->data['states'] = $this->StateModel->_dropdownlist();
     }
     /**
      * @method : rules()
@@ -27,6 +28,10 @@ class Citys extends MY_AdminController {
         	), array(
         		'field' => 'state_id',
         		'label' => 'State', 
+        		'rules' => 'required|numeric|trim'
+        	), array(
+        		'field' => 'city_icon',
+        		'label' => 'Icon', 
         		'rules' => 'required|numeric|trim'
         	),
         );
@@ -52,10 +57,10 @@ class Citys extends MY_AdminController {
 	public function create(){
         $this->rules();
 		if ($this->form_validation->run() == TRUE){
-		    
 			$data['city_country_id']          = $this->input->post('country_id');
 			$data['city_state_id']            = $this->input->post('state_id');
 			$data['city_name']                = $this->input->post('city_name');
+			$data['city_icon']                = $this->input->post('city_icon');
 			
 			if($this->CitysModel->save($data)){
 				$this->session->set_flashdata('success','City successfully created !');
@@ -83,11 +88,10 @@ class Citys extends MY_AdminController {
 		
 	    $this->rules();
 		if ($this->form_validation->run() == TRUE){
-		    
 			$data['city_country_id']          = $this->input->post('country_id');
 			$data['city_state_id']            = $this->input->post('state_id');
 			$data['city_name']                = $this->input->post('city_name');
-	     	
+			$data['city_icon']                = $this->input->post('city_icon');
 			$this->CitysModel->update(array('city_id'=>$city_id),$data);
 			$this->session->set_flashdata('success','City successfully updated !');
 			redirect('admin/citys');

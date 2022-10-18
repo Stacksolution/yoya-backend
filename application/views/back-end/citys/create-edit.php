@@ -1,10 +1,5 @@
 <?php include(__DIR__.'/../common/_header.php'); ?>
 <?php include(__DIR__.'/../common/_sidebar.php'); ?>
-<!-- page wise css -->
-<script src="<?= base_url('back-end') ?>/ckeditor/ckeditor.js" type="text/javascript"></script>
-<link href="<?= base_url('back-end') ?>/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css">
-<link rel="stylesheet" href="<?= base_url('back-end') ?>/libs/%40chenfengyuan/datepicker/datepicker.min.css">
-<!-- page wise css -->
 <div class="page-content">
    <div class="container-fluid">
       <div class="row">
@@ -39,38 +34,55 @@
                         </div>
                      </div>
                   </div>
-                   <?= form_open() ?>
-                     <div class="row mb-2 mt-2">
-                           <div class="col-md-6">
-                           <label>Select Country</label>
-                           <div class="input-group" id="Country">
-                              <?= form_dropdown('country_id',$country,set_value('country_id',$city->city_country_id),'class="form-control" id="country_id"') ?>
-                          </div>
-                           <?= form_error('country_id', '<div class="error">','</div>'); ?>
-                          </div>
-                            <div class="col-md-6">
-                           <label>Select State</label>
-                           <div class="input-group" id="state_id">
-                              <?= form_dropdown('state_id','',set_value('state_id',$city->city_state_id),'class="form-control" id="state_id"') ?>
-                          </div>
-                           <?= form_error('state_id', '<div class="error">','</div>'); ?>
-                          </div>
-                           </div>
-                          <div class="col-md-12">
-                           <label>City Name</label>
-                           <div class="input-group" id="name">
-                              <input type="text" class="form-control" placeholder="City name" name="city_name" value="<?= set_value('city_name',$city->city_name) ?>">
-                              <span class="input-group-text"><i class="bx bx-user"></i></span>
-                           </div>
-                           <?= form_error('city_name','<div class="error">','</div>'); ?>
+                  <?= form_open() ?>
+                  <div class="row mb-2 mt-2">
+                     <div class="col-md-6">
+                        <label>Select Country</label>
+                        <div class="input-group" id="Country">
+                           <?= form_dropdown('country_id',$country,set_value('country_id',$city->city_country_id),'class="form-control" id="country_id"') ?>
                         </div>
-                     <div class="row mt-4">
-                        <div class="col-md-6">
-                           <button type="submit" class="btn btn-primary waves-effect waves-light">
-                           <i class="bx bx-save font-size-16 align-middle me-2"></i>update
-                           </button>
-                        </div>
+                        <?= form_error('country_id', '<div class="error">','</div>'); ?>
                      </div>
+                     <div class="col-md-6">
+                        <label>Select State</label>
+                        <div class="input-group" id="state_id">
+                           <?= form_dropdown('state_id',$states,set_value('state_id',$city->city_state_id),'class="form-control" id="state_id"') ?>
+                        </div>
+                        <?= form_error('state_id', '<div class="error">','</div>'); ?>
+                     </div>
+                  </div>
+                  <div class="row mb-2 mt-2">
+                     <div class="col-md-6">
+                        <label>City Name</label>
+                        <div class="input-group" id="name">
+                           <input type="text" class="form-control" placeholder="City name" name="city_name" value="<?= set_value('city_name',$city->city_name) ?>">
+                           <span class="input-group-text"><i class="bx bx-user"></i></span>
+                        </div>
+                        <?= form_error('city_name','<div class="error">','</div>'); ?>
+                     </div>
+                     <div class="col-md-6">
+                        <label>Vehicle icon</label>
+                        <div class="input-group" id="sale">
+                           <div class="input-group" data-toggle="aizuploader" data-type="image">
+                              <div class="input-group-prepend">
+                                 <div class="input-group-text bg-soft-secondary font-weight-medium">Browse</div>
+                              </div>
+                              <div class="form-control file-amount">Choose File</div>
+                              <input type="hidden" name="city_icon" class="selected-files" value="<?= set_value('city_icon',$city->city_icon) ?>">
+                           </div>
+                           <div class="file-preview box sm">
+                           </div>
+                        </div>
+                        <?= form_error('city_icon','<div class="error">','</div>'); ?>
+                     </div>
+                  </div>
+                  <div class="row mt-4">
+                     <div class="col-md-6">
+                        <button type="submit" class="btn btn-primary waves-effect waves-light">
+                        <i class="bx bx-save font-size-16 align-middle me-2"></i>update
+                        </button>
+                     </div>
+                  </div>
                   <?= form_close() ?>
                </div>
             </div>
@@ -81,45 +93,4 @@
 </div>
 <!-- End Page-content -->
 <?php include(__DIR__.'/../common/_footer.php'); ?>
-<script> CKEDITOR.replace( 'page_description' ); </script>
-<script src="<?= base_url('back-end') ?>/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
-<!-- form advanced init -->
-<script src="<?= base_url('back-end') ?>/js/pages/form-advanced.init.js"></script>
-
-<script src="<?= base_url('back-end') ?>/libs/simplebar/simplebar.min.js"></script>
-<script src="https://transloadit.edgly.net/releases/uppy/v1.6.0/uppy.min.js"> 
-</script>
-<script src="<?= base_url('back-end') ?>/js/aiz-core.js"></script>
-
-<script>
-// get state 
-$(document).on('change', 'select#country_id', function (e) {
-    e.preventDefault();
-    var CountryID = $(this).val();
-    getstatelist(CountryID);
-});
-function getstatelist(CountryID) {
-    $.ajax({
-        url:  "<?= base_url("admin/citys/getState") ?>",
-        type: 'POST',
-        data: {CountryID: CountryID},
-        dataType: 'json',
-        beforeSend: function (){
-            $('select#state_id').find("option:eq(0)").html("Please wait..");
-        },
-        success: function (json){
-            var options = '';
-            options +='<option value="">Select State</option>';
-            for (var i = 0; i < json.length; i++) {
-                options += '<option value="' + json[i].state_id + '">' + json[i].state_name + '</option>';
-            }
-            $("select#state_id").html(options);
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
-        }
-    });
-}
-</script>
-
-
+<?php include(__DIR__.'/../common/_get_dependent_location.php'); ?>

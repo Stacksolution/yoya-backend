@@ -86,7 +86,8 @@ class VehicleModel extends CI_Model {
 				fare_extra_waiting_price,
 				fare_stop_price,
 				fare_commission,
-				fare_time_free');
+				fare_time_free,
+				fare_country_id');
 			$this->db->from($this->db->dbprefix('vehicles'));
 			$this->db->join($this->db->dbprefix('vehicles_fare'),$this->db->dbprefix('vehicles_fare').'.fare_vehicle_id ='.$this->db->dbprefix('vehicles').'.vehicle_id','inner');
 			$this->db->where('vehicle_status','1');
@@ -96,6 +97,7 @@ class VehicleModel extends CI_Model {
 
 			foreach($return->result() as $key => $data){
 				$return->result()[$key]->vehicle_icon = image_assets($data->vehicle_icon); 
+				$return->result()[$key]->country = $this->CountryModel->_fetch_single(array('country_id'=>$data->fare_country_id));
 			}
 			return $return;
 		} catch (Exception $e) {
@@ -122,14 +124,15 @@ class VehicleModel extends CI_Model {
 		$result = $this->fetch_vehicle_for_ride_where($where);
 		foreach($result->result() as $key => $data){
 			$result->result()[$key]->fare_total_time   = $total_time;
-
 			if(strtotime($bussines_time_tart) <= strtotime($booking_start_date) && strtotime($bussines_time_end) >= strtotime($booking_end_date)){
-				$result->result()[$key]->fare_total_amount = $total_distance * $data->fare_base_price;
+				$fare_total_amount = $total_distance * $data->fare_base_price;
 			}else if(strtotime($night_time_start) <= strtotime($booking_start_date) && strtotime($booking_end_date) >= strtotime($night_time_end)){
-				$result->result()[$key]->fare_total_amount = $total_distance * $data->fare_base_price;
+				$fare_total_amount = $total_distance * $data->fare_base_price;
 			}else{
-	            $result->result()[$key]->fare_total_amount = $total_distance * $data->fare_base_price;
+	            $fare_total_amount = $total_distance * $data->fare_base_price;
 	        }
+			$result->result()[$key]->fare_total_amount = currency_symbols(@$data->country->country_currency_symbols).$fare_total_amount;
+            $result->result()[$key]->fare_total_amount_value = $fare_total_amount;
 		}
 		return $result;
 	}

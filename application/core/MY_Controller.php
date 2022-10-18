@@ -10,11 +10,13 @@ class MY_Controller extends CI_Controller {
         $this->load->helper('function');
         $this->load->helper('string');
         $this->load->helper('status');
+        $this->load->helper('auth');
         // model
         $this->load->model('apis-models/v1/SettingModel');
         //setting or config
         $this->data['config'] = $this->SettingModel->fetch_setting_data();
     }
+
     public function _send_sms($mobile, $message, $tmpid = null, $unicode = null) {
         //Your authentication key
         $authKey = "4ae2c029edbb60021d673a961d9159b6";
@@ -42,7 +44,7 @@ class MY_Controller extends CI_Controller {
         return $output;
     }
 
-    function _googole_distance_api($pickuplat, $pickuplang, $destinationlat, $destinationlang) {
+    public function _googole_distance_api($pickuplat, $pickuplang, $destinationlat, $destinationlang) {
         $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" . $pickuplat . "," . $pickuplang . "&destinations=" . $destinationlat . "," . $destinationlang . "&mode=walking&departure_time=now&avoid=indoor&language=en-US&key=" . $this->data['config']['google_key'];
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -119,8 +121,11 @@ class MY_ApiController extends MY_Controller {
         $this->load->model('apis-models/v1/RentalModel');
         $this->load->model('apis-models/v1/RentalFareModel');
         $this->load->model('apis-models/v1/OutstationModel');
+        $this->load->model('apis-models/v1/TransportModel');
+        $this->load->model('apis-models/v1/BargainingModel');
     }
 }
+
 class MY_AdminController extends MY_Controller {
     public function __construct() {
         parent::__construct();
@@ -141,7 +146,6 @@ class MY_AdminController extends MY_Controller {
         $this->load->model('admin-models/StateModel');
         $this->load->model('admin-models/CitysModel');
         $this->load->model('admin-models/CountrysModel');
-        $this->load->model('admin-models/SettingModel');
         $this->load->model('admin-models/DiscountModel');
         $this->load->model('admin-models/RecentsearchModel');
         $this->load->model('admin-models/PageModel');
@@ -149,16 +153,11 @@ class MY_AdminController extends MY_Controller {
         $this->load->model('admin-models/RequiredDocumentModel');
         $this->load->model('admin-models/WalletModel');
         $this->load->model('admin-models/PackageFareModel');
-        //library
-        $this->load->library('password');
-        //helper
-        $this->load->helper('auth');
-        $this->load->helper('function');
-        $this->load->helper('string');
-        $this->load->helper('pagination');
-        $this->data['config'] = $this->SettingModel->fetch_all_setings();
+        $this->load->model('admin-models/RentalFareModel');
+        $this->load->model('admin-models/RentalPakageModel');
     }
 }
+
 class MY_HomeController extends MY_Controller {
     public function __construct() {
         parent::__construct();

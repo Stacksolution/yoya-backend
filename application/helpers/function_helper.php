@@ -132,7 +132,7 @@ if (!function_exists('dd')) {
 if (!function_exists('is_old_date')) {
     function is_old_date($date,$current_date = null ) {
         if(empty($current_date)){
-            $current_date = date('Y-m-d H:i');
+            $current_date = date('Y-m-d');
         }
         $current_date = strtotime($current_date);
         $compare_date = strtotime($date);

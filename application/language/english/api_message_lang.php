@@ -34,16 +34,16 @@ $lang['error_pickup_city_missing']	    = "Pickup city is empty Or missing  !";
 $lang['error_payment_mode_missing']     = "Payment mode is empty Or missing  !";
 $lang['error_booking_date_missing']     = "Ride Date is empty Or missing Or invalid Date !";
 $lang['error_booking_id_missing']     = "Booking ID is empty Or missing  !";
-
+$lang['error_booking_id_missing']     = "Booking ID is empty Or missing  !";
 $lang['error_drop_latitude_missing']    = "Destination latitude is empty Or missing  !";
-$lang['error_drop_longitude_missing']   = "Destination longitude is empty Or missing  !";
+$lang['error_counter_mode_missing']   = "Counter mode is empty Or missing !";
+$lang['error_bid_amount_missing']       = "Bid amount is empty Or missing !";
 $lang['error_drop_address_missing']     = "Destination address is empty Or missing  !";
 $lang['error_drop_city_missing']        = "Destination City is empty Or missing  !";
 $lang['error_request_id_missing']       = "Request ID is empty Or missing  !";
 $lang['error_otp_missing']       = "OTP is empty Or missing  !";
 $lang['error_otp_invaild']       = "invalid OTP  !";
 $lang['error_service_not_available']    = "Sorry !  Our service is not available on this area";
-
 
 //Auth File success================================================================
 $lang['success_otp_sent'] 			= 'OTP has been sent successfully !';
@@ -58,6 +58,7 @@ $lang['discount_removed'] 			= 'Discount code successfully removed !';
 $lang['booking_start'] 			= 'Booking start successfully !';
 $lang['booking_completed'] 			= 'Booking completed successfully !';
 $lang['booking_cancelled'] 			= 'Booking cancelled successfully !';
+$lang['bid_amount_save'] 			= 'Bid amount successfully saved !';
 
 // HTTP Code message
 $lang['server_error'] 			= 'Oops something went wrong please try after some time !';
