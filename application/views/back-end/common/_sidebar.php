@@ -47,9 +47,9 @@
                   <li><a href="<?= site_url('admin/vehicle') ?>" key="t-vehicle">Vehicles</a></li>
                   <li><a href="<?= site_url('admin/vehiclefare') ?>" key="t-vehicle">Vehicles Fare</a></li>
                   <li><a href="<?= site_url('admin/packagefare') ?>" key="t-vehicle">Package Fare</a></li>
-                  <li><a href="<?= site_url('admin/rental') ?>" key="t-vehicle">Rental Fare</a></li>
-                  <li><a href="<?= site_url('admin/') ?>" key="t-vehicle">Outstation Fare</a></li>
-                  <li><a href="<?= site_url('admin/transport') ?>" key="t-vehicle">Transport Fare</a></li>
+                  <li><a href="<?= site_url('admin/') ?>" key="t-vehicle">Rental Fare</a></li>
+                  <li><a href="<?= site_url('admin/outstation') ?>" key="t-vehicle">Outstation Fare</a></li>
+                  <li><a href="<?= site_url('admin/') ?>" key="t-vehicle">Transport Fare</a></li>
                </ul>
             </li>
              <li>
@@ -89,7 +89,8 @@
                <ul class="sub-menu" aria-expanded="false">
                   <li><a href="<?= site_url('admin/setting') ?>" key="t-system">Admin Setting</a></li>
                   <li><a href="<?= site_url('admin/setting/google') ?>" key="t-system">App Setting</a></li>
-                  <li><a href="<?= site_url('admin/page') ?>" key="t-system">Content Pages</a></li>
+                  <li><a href="<?= site_url('admin/page') ?>" key="t-Content">Content Pages</a></li>
+                  <li><a href="<?= site_url('admin/documentrequire') ?>" key="t-Document">Document Required</a></li>
                </ul>
             </li>
             <li>
