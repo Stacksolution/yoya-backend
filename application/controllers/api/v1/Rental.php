@@ -120,23 +120,53 @@ class Rental extends API_Controller {
 	        	$this->api_return(array('status' =>false,'message' =>"invalid rental package id !"),self::HTTP_BAD_REQUEST);exit();
 	        }
 	        //get package fare 
-	        $fare = $this->RentalFareModel->fetch_single(
+	        $result = $this->RentalFareModel->fetch_single(
 	        	array(
 	        		'fare_city_id'=>$city_id,
 	        		'fare_rental_id'=>$rental_id
 	        	)
 	        );
-	        if(empty($fare)){
+	        if(empty($result)){
 	        	$this->api_return(array('status' =>false,'message' =>"fare data not found !"),self::HTTP_BAD_REQUEST);exit();
 	        }
 	        $total_distance = $rental->rental_distance_value;
 	        $total_time  	= $rental->rental_hour_value * 60; //canvert hour to minutes
-	        $base_price = $fare->fare_base_price;
-
+	        $base_price = $result->fare_base_price;
+			$country_id  = $result->country->country_id;
+			//amount details manipulation
+			$total_amount = $base_price;
+			$courrency_code = currency_symbols(@$result->country->country_currency_symbols);
+			$amount_details = [
+	        	array(
+	        		'label'=>'Base Fare',
+	        		'value'=>$courrency_code.(string)round($result->fare_base_price),
+	        		'is_customer_visible'=>true,
+	        		'is_driver_visible'=>true
+	        	)
+	        ];
+			$taxes  = $this->TaxesModel->fetch_taxes(array('tax_country_id'=>$country_id))->result();
+			//tax apply this booking
+	        $calculate_tax = 0;
+	        $taxes_amount  = 0;
+	        foreach($taxes as $key => $data){
+	            $calculate_tax = round($total_amount / 100 * $data->tax_rate);
+	            $taxes_amount  += $calculate_tax;
+	        }
+			if($taxes_amount > 0){
+				array_push(
+					$amount_details,
+					array(
+						'label'=>'Taxes',
+						'value'=>$courrency_code.(string)round($taxes_amount),
+						'is_customer_visible'=>true,
+						'is_driver_visible'=>false
+					)
+				);
+			}
+			$request_data['request_amout_details'] = json_encode($amount_details);
 	        //store a search request 
 			$users = $this->UsersModel->fetch_user_data_for_request_by_id($post->user_id);
             $request_data['request_user_details'] = json_encode($users);
-
 	        $request_data['request_user_id'] = $post->user_id;
 	        $request_data['request_pickup_latitude'] = $post->pickup_latitude;
 	        $request_data['request_pickup_longitude'] = $post->pickup_longitude;
@@ -157,6 +187,7 @@ class Rental extends API_Controller {
 	        $request_data['request_booking_type'] = 'current_ride';
 	        $request_data['request_booking_date'] = $post->booking_date;
 	        $request_data['request_status'] = 1;
+			
 	        if($request_id = $this->RequestModel->save($request_data)){
 	        	if(in_array('cash',$post->payment_method,true)){
 		        	/*==============================================
