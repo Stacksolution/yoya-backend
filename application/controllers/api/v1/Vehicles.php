@@ -131,7 +131,6 @@ class Vehicles extends API_Controller {
 	        $request_data['request_distance_text'] = $total_distance .' Km.';
 	        $request_data['request_time_text'] = $total_time_in_minutes . ' minutes';
 	        $request_data['request_time_value'] = $total_time_in_minutes;
-			$request_data['request_mode'] = 'cab';
 	        if($request_id = $this->RequestModel->save($request_data)){
 	        	//store a search drop request 
 	        	foreach($post->drop_locations as $key => $data){
