@@ -47,9 +47,9 @@
                   <li><a href="<?= site_url('admin/vehicle') ?>" key="t-vehicle">Vehicles</a></li>
                   <li><a href="<?= site_url('admin/vehiclefare') ?>" key="t-vehicle">Vehicles Fare</a></li>
                   <li><a href="<?= site_url('admin/packagefare') ?>" key="t-vehicle">Package Fare</a></li>
-                  <li><a href="<?= site_url('admin/') ?>" key="t-vehicle">Rental Fare</a></li>
+                  <li><a href="<?= site_url('admin/rental') ?>" key="t-vehicle">Rental Fare</a></li>
                   <li><a href="<?= site_url('admin/outstation') ?>" key="t-vehicle">Outstation Fare</a></li>
-                  <li><a href="<?= site_url('admin/') ?>" key="t-vehicle">Transport Fare</a></li>
+                  <li><a href="<?= site_url('admin/transport') ?>" key="t-vehicle">Transport Fare</a></li>
                </ul>
             </li>
              <li>

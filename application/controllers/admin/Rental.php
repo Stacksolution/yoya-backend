@@ -89,6 +89,11 @@ class Rental extends MY_AdminController {
      * @method : update()
      * @date : 2022-10-18
      * @about: This method use for update vihicle package fare 
+<<<<<<< HEAD
+=======
+     *
+     *
+>>>>>>> origin/transport
      */
     public function update() {
 		$this->rules();
