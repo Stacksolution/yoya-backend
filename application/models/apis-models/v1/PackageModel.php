@@ -43,7 +43,6 @@ class PackageModel extends CI_Model {
 		$result = $this->db->get();
 		foreach($result->result() as $key => $data){
 			$result->result()[$key]->vehicle_icon = image_assets($data->vehicle_icon); 
-			$result->result()[$key]->country = $this->CountryModel->_fetch_single(array('country_id'=>$data->fare_country_id));
 		}
 		
 		/*=======================get price=====================*/
@@ -59,13 +58,10 @@ class PackageModel extends CI_Model {
 	        }
 
 	        if($data->fare_kilometre_price > 0){
-	        	$fare_total_amount = $data->fare_kilometre_price * $total_distance + $data->fare_base_price;
+	        	$result->result()[$key]->fare_total_amount = $data->fare_kilometre_price * $total_distance + $data->fare_base_price;
 	        }else{
-	        	$fare_total_amount = $total_amount;
+	        	$result->result()[$key]->fare_total_amount = $total_amount;
 	        }
-			
-			$result->result()[$key]->fare_total_amount = currency_symbols(@$data->country->country_currency_symbols).$fare_total_amount;
-			$result->result()[$key]->fare_total_amount_value = $fare_total_amount;
 	        $result->result()[$key]->fare_total_distance = $total_distance .' Km.';
 		}
 		return $result;
