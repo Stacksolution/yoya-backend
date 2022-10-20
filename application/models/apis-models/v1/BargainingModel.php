@@ -34,6 +34,11 @@ class BargainingModel extends CI_Model {
 			$this->db->where($where);
 			$this->db->order_by('bargain_id','desc');
 			$bargaining = $this->db->get();
+			foreach($bargaining->result() as $key => $data){
+				$user_data = $this->UsersModel->fetch_user_by_id($data->bargain_user_id);
+				$bargaining->result()[$key]->bargain_user = $user_data;
+			}
+			
 			return $bargaining;
 		} catch (Exception $e) {
 		  log_message('error',$e->getMessage());

@@ -98,14 +98,6 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title mb-4">Pie Chart</h4>
-                        <div id="pie-chart" class="e-charts"></div>
-                    </div>
-                </div>
-            </div>
          </div>
       </div>
    </div>
