@@ -56,7 +56,6 @@ class Rental extends MY_AdminController {
      */
     public function index() {
         $this->data['rentalfares'] = $this->RentalFareModel->fetch_all();
-		//dd($this->data['rentalfares']->result());
         $this->load->view('back-end/rental/index-page', $this->data);
     }
 	/**
@@ -89,11 +88,6 @@ class Rental extends MY_AdminController {
      * @method : update()
      * @date : 2022-10-18
      * @about: This method use for update vihicle package fare 
-<<<<<<< HEAD
-     *
-     *
-=======
->>>>>>> main
      */
     public function update() {
 		$this->rules();

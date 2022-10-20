@@ -155,6 +155,8 @@ class MY_AdminController extends MY_Controller {
         $this->load->model('admin-models/PackageFareModel');
         $this->load->model('admin-models/OutstationModel');
         $this->load->model('admin-models/DocumentsModel');
+        $this->load->model('admin-models/RentalPakageModel');
+        $this->load->model('admin-models/RentalFareModel');
     }
 }
 
