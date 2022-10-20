@@ -165,12 +165,6 @@ class Rental extends API_Controller {
 				);
 			}
 			$request_data['request_amout_details'] = json_encode($amount_details);
-	        //store a search request 
-<<<<<<< HEAD
-			$users = $this->UsersModel->fetch_user_data_for_request_by_id($post->user_id);
-            $request_data['request_user_details'] = json_encode($users);
-=======
->>>>>>> devmaster
 	        $request_data['request_user_id'] = $post->user_id;
 	        $request_data['request_pickup_latitude'] = $post->pickup_latitude;
 	        $request_data['request_pickup_longitude'] = $post->pickup_longitude;
