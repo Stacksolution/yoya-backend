@@ -152,7 +152,7 @@ class Transport extends API_Controller {
     	{
     		$this->_apiConfig([
 	            'methods' => ['POST'],
-	            //  'key' => ['header',$this->config->item('api_fixe_header_key')],
+	            //'key' => ['header',$this->config->item('api_fixe_header_key')],
 	        ]);
 	        $post = json_decode(file_get_contents('php://input'));
             if(empty($post->user_id) || !isset($post->user_id)){
@@ -196,6 +196,7 @@ class Transport extends API_Controller {
             $vehicle_id = $post->vehicle_id;
 			$booking_date_from = $request->request_booking_date;
 			$booking_date_to = $request->request_booking_date_to;
+			
 
             $result = $this->OutstationModel->vehicle_amount_calculate(
 				array(
@@ -209,16 +210,56 @@ class Transport extends API_Controller {
 					'total_distance' => $request_distance_value
 					)
 				)->row();
-
+			
+			$country_id  = $result->country->country_id;
+			$total_amount = $result->fare_total_amount_value;
+			//amount details manipulation
+			$country_id = 
+			$courrency_code = currency_symbols(@$result->country->country_currency_symbols);
+			$amount_details = [
+	        	array(
+	        		'label'=>'Base Fare',
+	        		'value'=>$courrency_code.(string)round($result->fare_base_price),
+	        		'is_customer_visible'=>true,
+	        		'is_driver_visible'=>true
+	        	)
+	        ];
+			$taxes  = $this->TaxesModel->fetch_taxes(array('tax_country_id'=>$country_id))->result();
+			//tax apply this booking
+	        $calculate_tax = 0;
+	        $taxes_amount  = 0;
+	        foreach($taxes as $key => $data){
+	            $calculate_tax = round($total_amount / 100 * $data->tax_rate);
+	            $taxes_amount  += $calculate_tax;
+	        }
+			if($taxes_amount > 0){
+				array_push(
+					$amount_details,
+					array(
+						'label'=>'Taxes',
+						'value'=>$courrency_code.(string)round($taxes_amount),
+						'is_customer_visible'=>true,
+						'is_driver_visible'=>false
+					)
+				);
+			}
+			$request_data['request_amout_details'] = json_encode($amount_details);
 	        $users = $this->UsersModel->fetch_user_data_for_request_by_id($post->user_id);
 	        $request_data['request_user_details'] = json_encode($users);
+			
 	       // $request_data['request_payments_mode']= json_encode($post->payment_method);
 	        $request_data['request_vehicle_id'] = $post->vehicle_id;
             $request_data['request_status'] = '1'; //for request is pendig or search
-			$request_data['request_total_amount'] = $result->fare_total_amount_value;
+			$request_data['request_total_amount'] = $total_amount;
+
+
             //if counter enable Then 
             $counter_mode = $post->counter_mode;
             if($counter_mode == true){
+				$bid_data['bargain_amount'] = $total_amount;
+				$bid_data['bargain_user_id'] = $post->user_id;
+				$bid_data['bargain_request_id'] = $request_id;
+				$this->BargainingModel->save($bid_data);
                 $request_data['request_counter_mode'] = true;
             }else{
                 $request_data['request_counter_mode'] = false;
@@ -237,7 +278,6 @@ class Transport extends API_Controller {
 	 * @method : checkout()
 	 * @date : 2022-10-12
 	 * @about: This method use for update time and payment methods 
-	 * 
 	 * */
 	public function checkout(){
 		try
@@ -267,6 +307,8 @@ class Transport extends API_Controller {
             if(empty($request)){
                 $this->api_return(array('status' =>false,'message' =>lang('server_error')),self::HTTP_SERVER_ERROR);exit();
             }
+
+
 
 	        $request_data['request_payments_mode']= json_encode($post->payment_method);
             $request_data['request_status'] = '1'; //for request is pendig or search
@@ -355,9 +397,15 @@ class Transport extends API_Controller {
             if(empty($post->bid_amount) || !isset($post->bid_amount)){
 		        $this->api_return(array('status' =>false,'message' => lang('error_bid_amount_missing')),self::HTTP_BAD_REQUEST);exit();
 	        }
+			if(empty($post->bargain_id) || !isset($post->bargain_id)){
+		        $this->api_return(array('status' =>false,'message' => lang('error_bargain_id_missing')),self::HTTP_BAD_REQUEST);exit();
+	        }
+			
             $data['bargain_amount'] = $post->bid_amount;
             $data['bargain_user_id'] = $post->user_id;
             $data['bargain_request_id'] = $post->request_id;
+			$data['bargain_bargain_id'] = $post->bargain_id;
+
             if($this->BargainingModel->save($data)){
                 $this->api_return(array('status' =>true,'message' => lang('bid_amount_save')),self::HTTP_OK);exit();
             }else{
