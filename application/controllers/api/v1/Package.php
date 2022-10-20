@@ -111,8 +111,7 @@ class Package extends API_Controller {
             $request_data['request_distance_text'] = $total_distance . ' Km.';
             $request_data['request_time_text'] = $total_time_in_minutes . ' minutes';
             $request_data['request_time_value'] = $total_time_in_minutes;
-            $request_data['request_mode'] = 'package';
-			$request_data['request_booking_type'] = 'current_ride';
+            $request_data['request_booking_type'] = 'package';
             if ($request_id = $this->RequestModel->save($request_data)) {
                 //store a search drop request
                 foreach ($post->drop_locations as $key => $data) {
@@ -161,8 +160,7 @@ class Package extends API_Controller {
             $package_data['package_sender_mobile'] = $post->sender_mobile;
             $package_data['package_receiver_name'] = $post->receiver_name;
             $package_data['package_receiver_mobile'] = $post->receiver_mobile;
-            $package_data['request_package_details'] = json_encode($package_data);
-
+            $request_data['request_package_details'] = json_encode($package_data);
             if($this->RequestModel->update(array('request_id'=>$post->request_id),$request_data)){
                $this->api_return(array('status' =>true,'message'=>"Request updated !"),self::HTTP_OK);exit();
             }else{
@@ -195,9 +193,6 @@ class Package extends API_Controller {
             if(empty($post->booking_date) || !isset($post->booking_date)){
                 $this->api_return(array('status' =>false,'message' => lang('error_booking_date_missing')),self::HTTP_BAD_REQUEST);exit();
             }
-            if(empty($post->vehicle_id) || !isset($post->vehicle_id)){
-		        $this->api_return(array('status' =>false,'message' => lang('error_vehicle_type_missing')),self::HTTP_BAD_REQUEST);exit();
-	        }
             $request_id = $post->request_id;
             //check request se
             if(!$this->RequestModel->is_exist(array('request_id'=>$request_id))){
@@ -212,20 +207,7 @@ class Package extends API_Controller {
             $request_pickup_city_id = $request->request_pickup_city_id;
             $request_distance_value = $request->request_distance_value;
             $vehicle_id = $post->vehicle_id;
-			$country_id = $request->request_pickup_country_id;
-
-            $result = $this->PackageModel->package_amount_calculate(
-                array(
-                    'vehicle_id'=>$vehicle_id,
-                    'fare_city_id' => $request_pickup_city_id
-                ), 
-                array(
-                    'total_time' => $request_time_value,
-                    'total_distance' => $request_distance_value
-                    )
-                )->row();
-
-                $total_amount = $result->fare_total_amount_value;
+            $result = $this->PackageModel->package_amount_calculate(array('vehicle_id'=>$vehicle_id,'fare_city_id' => $request_pickup_city_id), array('total_time' => $request_time_value, 'total_distance' => $request_distance_value))->row();
 
             $users = $this->UsersModel->fetch_user_data_for_request_by_id($post->user_id);
             $request_data['request_user_details'] = json_encode($users);
@@ -233,38 +215,8 @@ class Package extends API_Controller {
             $request_data['request_booking_date'] = date("Y-m-d H:i:s",strtotime($post->booking_date));
             $request_data['request_status'] = '1'; //for request is pendig or search
             $request_data['request_vehicle_id'] = $vehicle_id;
-            $request_data['request_total_amount'] = $total_amount;
-
-            //amount details manipulation
-			$courrency_code = currency_symbols(@$result->country->country_currency_symbols);
-			$amount_details = [
-	        	array(
-	        		'label'=>'Base Fare',
-	        		'value'=>$courrency_code.(string)round($result->fare_base_price),
-	        		'is_customer_visible'=>true,
-	        		'is_driver_visible'=>true
-	        	)
-	        ];
-			$taxes  = $this->TaxesModel->fetch_taxes(array('tax_country_id'=>$country_id))->result();
-			//tax apply this booking
-	        $calculate_tax = 0;
-	        $taxes_amount  = 0;
-	        foreach($taxes as $key => $data){
-	            $calculate_tax = round($total_amount / 100 * $data->tax_rate);
-	            $taxes_amount  += $calculate_tax;
-	        }
-			if($taxes_amount > 0){
-				array_push(
-					$amount_details,
-					array(
-						'label'=>'Taxes',
-						'value'=>$courrency_code.(string)round($taxes_amount),
-						'is_customer_visible'=>true,
-						'is_driver_visible'=>false
-					)
-				);
-			}
-			$request_data['request_amout_details'] = json_encode($amount_details);
+            $request_data['request_total_amount'] = @$result->fare_total_amount;
+            $request_data['request_amout_details'] = @json_encode($result);
 
             if($this->RequestModel->update(array('request_id'=>$post->request_id),$request_data)){
                 if(in_array('cash',$post->payment_method,true)){
@@ -309,6 +261,8 @@ class Package extends API_Controller {
                 'log_create_at'=>date("Y-m-d H:i:s"),
                 'log_user_by'=>$result->request_user_id
             ));
+            
+            
         }
         
         if(!empty($tokens)){
@@ -317,14 +271,14 @@ class Package extends API_Controller {
             
             $this->pushnotification->initialize($config);
             $this->pushnotification->subject("New Ride Request Recived !");
-            $this->pushnotification->message("New Ride Request Recived !");
-            $this->pushnotification->data(
-                    array(
-                        "click_action"  =>"FLUTTER_NOTIFICATION_CLICK",
-                        "sound"         =>"default", 
-                        "screen"        =>"",
-                        "data_id"       =>$request_id,
-                    ));
+                $this->pushnotification->message("New Ride Request Recived !");
+                $this->pushnotification->data(
+                        array(
+                            "click_action"  =>"FLUTTER_NOTIFICATION_CLICK",
+                            "sound"         =>"default", 
+                            "screen"        =>"",
+                            "data_id"       =>$request_id,
+                        ));
             $this->pushnotification->sendMultiple($tokens);
         }
         if(!empty($request_log)){
