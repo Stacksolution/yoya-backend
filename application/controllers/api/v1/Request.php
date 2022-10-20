@@ -40,68 +40,22 @@ class Request extends API_Controller {
 	        if(empty($cities)){
 	            $this->api_return(array('status' =>false,'message' =>lang('server_error')),self::HTTP_SERVER_ERROR);exit();
 	        }
-			$vehicle_id = $post->vehicle_id;
-			$country_id = $request->request_pickup_country_id;
             //vehicle amount calcution 
 	        $result = $this->VehicleModel->vehicle_amount_calculate(
-	        	array(
-					'fare_city_id'=>@$cities->city_id
-				),
-	        	array(
-					'total_time'=>@$request->request_time_value,
-					'total_distance'=>@$request->request_distance_value
-					)
-				)->row();
+	        	array('fare_city_id'=>@$cities->city_id),
+	        	array('total_time'=>@$request->request_time_value,'total_distance'=>@$request->request_distance_value))->row();
 	        if(empty($result)){
 	            $this->api_return(array('status' =>false,'message' =>lang('server_error')),self::HTTP_SERVER_ERROR);exit();
 	        }
-
-	        $total_amount = $result->fare_total_amount_value;
-			$courrency_code = currency_symbols(@$result->country->country_currency_symbols);
-			$amount_details = [
-	        	array(
-	        		'label'=>'Base Fare',
-	        		'value'=>$courrency_code.(string)round($result->fare_base_price),
-	        		'is_customer_visible'=>true,
-	        		'is_driver_visible'=>true
-	        	)
-	        ];
-			array_push(
-				$amount_details,
-				array(
-					'label'=>'Booking Fee',
-					'value'=>$courrency_code.(string)round($result->fare_night_price),
-					'is_customer_visible'=>true,
-					'is_driver_visible'=>false
-				)
-			);
-			$taxes  = $this->TaxesModel->fetch_taxes(array('tax_country_id'=>$country_id))->result();
-			//tax apply this booking
-	        $calculate_tax = 0;
-	        $taxes_amount  = 0;
-	        foreach($taxes as $key => $data){
-	            $calculate_tax = round($total_amount / 100 * $data->tax_rate);
-	            $taxes_amount  += $calculate_tax;
-	        }
-			if($taxes_amount > 0){
-				array_push(
-					$amount_details,
-					array(
-						'label'=>'Taxes',
-						'value'=>$courrency_code.(string)round($taxes_amount),
-						'is_customer_visible'=>true,
-						'is_driver_visible'=>false
-					)
-				);
-			}
-			$request_data['request_amout_details'] = json_encode($amount_details);
-			
+	        
 	        $users = $this->UsersModel->fetch_user_data_for_request_by_id($post->user_id);
 	        $request_data['request_user_details'] = json_encode($users);
 	        $request_data['request_booking_type'] = 'current_ride';
 	        $request_data['request_vehicle_id'] = $post->vehicle_id;
-	        $request_data['request_total_amount'] = $total_amount;
-	        $request_data['request_status'] = '1'; //for request is pendig or search	
+	        $request_data['request_total_amount'] = @$result->fare_total_amount;
+	        $request_data['request_amout_details'] = @json_encode($result);
+	        $request_data['request_status'] = '1'; //for request is pendig or search
+            
 	        if($this->RequestModel->update(array('request_id'=>$post->request_id),$request_data)){
 		        $this->api_return(array('status' =>true,'message' =>lang('ride_request_send'),'request_id'=>$post->request_id),self::HTTP_OK);exit();
 	        }else{
@@ -360,7 +314,7 @@ class Request extends API_Controller {
 	        }
 	        
 	        $request = $this->RequestModel->fetch_single(array('request_id'=>$request_id));
-	        $request->request_discountable_amount = (string)$request->request_total_amount - $request->request_coupon_amount;
+	        $request->request_discountable_amount = $request->request_total_amount - $request->request_coupon_amount;
 		    $this->api_return(array('status' =>true,'message' =>lang('data_found'),'data'=>$request),self::HTTP_OK);exit();
     	}catch (Exception $e) {
    		 	$this->api_return(array('status' =>false,'message' => $e->getMessage()),self::HTTP_SERVER_ERROR);exit();
