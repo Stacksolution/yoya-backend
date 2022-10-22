@@ -407,7 +407,7 @@ class Transport extends API_Controller {
 			$data['bargain_bargain_id'] = $post->bargain_id;
 
             if($this->BargainingModel->save($data)){
-                $this->api_return(array('status' =>true,'message' => lang('bid_amount_save')),self::HTTP_OK);exit();
+                $this->api_return(array('status' =>true,'message' => lang('bid_amount_save'),'data'=>$data),self::HTTP_OK);exit();
             }else{
                 $this->api_return(array('status' =>false,'message' => lang('server_error')),self::HTTP_BAD_REQUEST);exit();
             }
@@ -439,7 +439,7 @@ class Transport extends API_Controller {
 			$request_id = $post->request_id;
 
 			if($post->user_type == 'customer'){
-				$result_1 = $this->BargainingModel->fetch_for_with_where_all(['bargain_user_id'=>$user_id]);
+				$result_1 = $this->BargainingModel->fetch_for_with_where_all(['bargain_user_id'=>$user_id,'bargain_request_id'=>$request_id]);
 				$result_2 = $this->BargainingModel->fetch_for_with_where_not_all(['bargain_request_id'=>$request_id],[$user_id]);
 				$result_bargain = array(
 					'bargain_customer' => $result_1->row(),
@@ -449,7 +449,7 @@ class Transport extends API_Controller {
 				$request = $this->RequestModel->fetch_single(array('request_id'=>$request_id));
 				$driver_id = $user_id;
 				$user_id   = $request->request_user_id;
-				$result_1  = $this->BargainingModel->fetch_for_with_where_all(['bargain_user_id'=>$user_id]);
+				$result_1  = $this->BargainingModel->fetch_for_with_where_all(['bargain_user_id'=>$user_id,'bargain_request_id'=>$request_id]);
 				
 				$result_2 = $this->BargainingModel->fetch_for_with_where_all(['bargain_user_id'=>$driver_id,'bargain_request_id'=>$request_id]);
 				$result_bargain = array(
