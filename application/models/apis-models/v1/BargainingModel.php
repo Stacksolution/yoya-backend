@@ -90,4 +90,4 @@ class BargainingModel extends CI_Model {
 		  return;
 		}
 	}
-}
+}	
