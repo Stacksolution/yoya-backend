@@ -416,11 +416,11 @@ class Transport extends API_Controller {
         }
     }
 	/**
-	 * @method : request()
+	 * @method : bargainingview()
 	 * @date : 2022-10-06
 	 * @about: This method use for fetch bid amounts
 	 * */
-	public function request(){
+	public function bargainingview(){
 		try
     	{
             $this->_apiConfig([
@@ -434,12 +434,32 @@ class Transport extends API_Controller {
 			if(empty($post->request_id) || !isset($post->request_id)){
 		        $this->api_return(array('status' =>false,'message' => lang('error_request_id_missing')),self::HTTP_BAD_REQUEST);exit();
 	        }
-			$result = $this->BargainingModel->fetch_all(array('bargain_request_id'=>$post->request_id));
-			if($result->num_rows() > 0){
-				$this->api_return(array('status' =>true,'message' => lang('data_found'),'data'=>$result->result()),self::HTTP_OK);exit();
-			}else{
-				$this->api_return(array('status' =>false,'message' => lang('data_not_found')),self::HTTP_BAD_REQUEST);exit();
+
+			$user_id = $post->user_id;
+			$request_id = $post->request_id;
+
+			if($post->user_type == 'customer'){
+				$result_1 = $this->BargainingModel->fetch_for_with_where_all(['bargain_user_id'=>$user_id]);
+				$result_2 = $this->BargainingModel->fetch_for_with_where_not_all(['bargain_request_id'=>$request_id],[$user_id]);
+				$result_bargain = array(
+					'bargain_customer' => $result_1->row(),
+					'bargain_drivers' => $result_2->result(),
+				);
+			}else if($post->user_type == 'driver'){
+				$request = $this->RequestModel->fetch_single(array('request_id'=>$request_id));
+				$driver_id = $user_id;
+				$user_id   = $request->request_user_id;
+				$result_1  = $this->BargainingModel->fetch_for_with_where_all(['bargain_user_id'=>$user_id]);
+				
+				$result_2 = $this->BargainingModel->fetch_for_with_where_all(['bargain_user_id'=>$driver_id,'bargain_request_id'=>$request_id]);
+				$result_bargain = array(
+					'bargain_customer' => $result_1->row(),
+					'bargain_drivers' => $result_2->result(),
+				);
 			}
+			
+			$this->api_return(array('status' =>true,'message' => lang('data_found'),'data'=>$result_bargain),self::HTTP_OK);exit();
+			
 		}catch (Exception $e) {
             $this->api_return(array('status' =>false,'message' => $e->getMessage()),self::HTTP_SERVER_ERROR);exit();
         }      
@@ -528,7 +548,8 @@ class Transport extends API_Controller {
 	        
 			$request_data['request_status'] = 2; //for request is accepted or search
 		    $this->RequestModel->update(array('request_id'=>$post->request_id),$request_data);
-			
+			//error_log('error',$this->db->last_query());
+
 			$booking['booking_order_id'] = $booking_id;
 	        $booking['booking_user_id'] = $request->request_user_id;
 	        $booking['booking_driver_id'] = $post->user_id;
