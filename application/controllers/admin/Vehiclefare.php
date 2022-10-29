@@ -6,7 +6,9 @@ class Vehiclefare extends MY_AdminController {
         parent::__construct(); 
         is_logged_out(); // if user is logout Or session is expired then redirect login
     	$this->data['vehicles'] = $this->VehicleModel->_dropdownlist();
-		$this->data['country'] = $this->CountrysModel->_dropdownlist();
+	$this->data['country'] = $this->CountrysModel->_dropdownlist();
+	$this->data['states'] = $this->StateModel->_dropdownlist();
+        $this->data['cities'] = $this->CitysModel->_dropdownslist();
     }
     /**
 	 * @method : index()
