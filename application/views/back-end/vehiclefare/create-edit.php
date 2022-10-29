@@ -27,7 +27,7 @@
                   <div class="col-md-4 text-right">
                      <div class="card-footer bg-transparent" style="margin-top: -15px;">
                         <div class="text-center">
-                           <a href="<?= site_url('admin/vehicle') ?>" class="btn btn-outline-dark btn-sm align-middle me-2" title="Pages" style="float: right;">
+                           <a href="<?= site_url('admin/vehiclefare') ?>" class="btn btn-outline-dark btn-sm align-middle me-2" title="Pages" style="float: right;">
                            <i class="bx bx-arrow-back"></i>Vehicle fare
                            </a>
                         </div>
@@ -46,7 +46,7 @@
                   <div class="col-md-6">
                      <label>Select State</label>
                      <div class="input-group" id="state">
-                        <?= form_dropdown('state_id','',set_value('state_id',$vehiclefare_data->fare_state_id),'class="form-control" id="state_id" placeholder="Select State"') ?>
+                        <?= form_dropdown('state_id',$states,set_value('state_id',$vehiclefare_data->fare_state_id),'class="form-control" id="state_id" placeholder="Select State"') ?>
                      </div>
                      <?= form_error('state_id', '<div class="error">', '</div>'); ?>
                   </div>
@@ -55,7 +55,7 @@
                   <div class="col-md-6">
                      <label>Select City</label>
                      <div class="input-group" id="city_id">
-                        <?= form_dropdown('city_id','',set_value('city_id',$vehiclefare_data->fare_city_id),'class="form-control" id="city_id" placeholder="Select city" ') ?>
+                        <?= form_dropdown('city_id',$cities,set_value('city_id',$vehiclefare_data->fare_city_id),'class="form-control" id="city_id" placeholder="Select city" ') ?>
                      </div>
                      <?= form_error('city_id', '<div class="error">', '</div>'); ?>
                   </div>
@@ -161,4 +161,3 @@
 <!-- End Page-content -->
 <?php include(__DIR__.'/../common/_footer.php'); ?>
 <?php include(__DIR__.'/../common/_get_dependent_location.php'); ?>
-
