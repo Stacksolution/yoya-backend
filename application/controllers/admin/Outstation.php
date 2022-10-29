@@ -88,10 +88,10 @@ class Outstation extends MY_AdminController {
 			$data['fare_create_at']          = date('Y-m-d H:i:s');
 			if($this->OutstationModel->save($data)){
 				$this->session->set_flashdata('success','Vahicle Fare successfully created !');
-				redirect('admin/outstationfare');
+				redirect('admin/outstation');
 			}else{
 				$this->session->set_flashdata('error','Oops something went wrong please try after some time!');
-				redirect('admin/outstationfare/create');
+				redirect('admin/outstation/create');
 			}
 		}
 		$this->data['meta'] = array('meta_title'=>'Vehicle Fare Create','meta_description'=>'');
@@ -117,7 +117,7 @@ class Outstation extends MY_AdminController {
             $this->OutstationModel->update(array('fare_id'=>$vehiclefare_id),$data);
 			$this->session->set_flashdata('success','vehiclefare details successfully updated !');
 			redirect('admin/outstation');
-             dd($this->data['outstation']);
+           //  dd($this->data['outstation']);
 		}
 		$this->load->view('back-end/outstationfare/create-edit',$this->data);
 	}

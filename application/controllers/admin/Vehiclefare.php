@@ -35,6 +35,7 @@ class Vehiclefare extends MY_AdminController {
 		$this->form_validation->set_rules('fare_business_price', 'Business price', 'required');
 		$this->form_validation->set_rules('fare_night_price',    'night price', 'required');
 		$this->form_validation->set_rules('fare_extra_waiting_price', 'Waiting price', 'required');
+		$this->form_validation->set_rules('fare_under_distance', 'Per Kilometer price', 'numeric');
 		if ($this->form_validation->run() == TRUE){
 		    
 			$data['fare_vehicle_id']         = $this->input->post('vehicle_id');
@@ -49,6 +50,7 @@ class Vehiclefare extends MY_AdminController {
 			$data['fare_stop_price']         = $this->input->post('fare_stop_price');
 			$data['fare_commission']         = $this->input->post('fare_commission');
 			$data['fare_time_free']          = $this->input->post('fare_time_free');
+			$data['fare_under_distance']          = $this->input->post('fare_under_distance');
 	     	$data['fare_create_at']          = date('Y-m-d H:i:s');
 			if($this->VehiclefareModel->save($data)){
 				$this->session->set_flashdata('success','Vahicle Fare successfully created !');
@@ -82,6 +84,7 @@ class Vehiclefare extends MY_AdminController {
 		$this->form_validation->set_rules('fare_business_price', 'Business price', 'required');
 		$this->form_validation->set_rules('fare_night_price',    'night price', 'required');
 		$this->form_validation->set_rules('fare_extra_waiting_price', 'Waiting price', 'required');
+		$this->form_validation->set_rules('fare_under_distance', 'Per Kilometer price', 'numeric');
 		if ($this->form_validation->run() == TRUE){
 		    
 			$data['fare_vehicle_id']         = $this->input->post('vehicle_id');
@@ -96,7 +99,7 @@ class Vehiclefare extends MY_AdminController {
 			$data['fare_stop_price']         = $this->input->post('fare_stop_price');
 			$data['fare_commission']         = $this->input->post('fare_commission');
 			$data['fare_time_free']          = $this->input->post('fare_time_free');
-	     	
+			$data['fare_under_distance']          = $this->input->post('fare_under_distance');
 			$this->VehiclefareModel->update(array('fare_id'=>$vehiclefare_id),$data);
 			$this->session->set_flashdata('success','vehiclefare details successfully updated !');
 			redirect('admin/vehiclefare');
