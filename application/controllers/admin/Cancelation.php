@@ -7,7 +7,7 @@ class Cancelation extends MY_AdminController {
         $this->data['country'] = $this->CountrysModel->_dropdownlist();
         $this->data['states'] = $this->StateModel->_dropdownlist();
         $this->data['cities'] = $this->CitysModel->_dropdownslist();
-        $this->data['vehicles'] = $this->VehicleModel->_dropdownlist();
+        
     }
     /**
      * @method : rules()
