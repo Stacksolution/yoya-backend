@@ -39,14 +39,14 @@
                   <div class="col-md-6">
                         <label>Select Country</label>
                         <div class="input-group" id="country">
-                           <?= form_dropdown('country_id',$country,set_value('country_id'),'class="form-control" id="country_id"') ?>
+                           <?= form_dropdown('country_id',$country,set_value('country_id',$cancel->cancel_country_id),'class="form-control" id="country_id"') ?>
                         </div>
                         <?= form_error('country_id', '<div class="error">', '</div>'); ?>
                      </div>
                      <div class="col-md-6">
                         <label>Select State</label>
                         <div class="input-group" id="state">
-                           <?= form_dropdown('state_id',[''=>'--Select State--'],set_value('state_id'),'class="form-control" id="state_id" placeholder="Select State"') ?>
+                           <?= form_dropdown('state_id',$states,set_value('state_id',$cancel->cancel_state_id),'class="form-control" id="state_id" placeholder="Select State"') ?>
                         </div>
                         <?= form_error('state_id', '<div class="error">', '</div>'); ?>
                      </div>
@@ -55,7 +55,7 @@
                   <div class="col-md-6">
                         <label>Select City</label>
                         <div class="input-group" id="city_id">
-                           <?= form_dropdown('city_id',[''=>'--Select City--'],set_value('city_id'),'class="form-control" id="city_id" placeholder="Select city" ') ?>
+                           <?= form_dropdown('city_id',$cities,set_value('city_id',$cancel->cancel_city_id),'class="form-control" id="city_id" placeholder="Select city" ') ?>
                         </div>
                         <?= form_error('city_id', '<div class="error">', '</div>'); ?>
                      </div>
