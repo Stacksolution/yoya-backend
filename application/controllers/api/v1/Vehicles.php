@@ -24,8 +24,6 @@ class Vehicles extends API_Controller {
    		 	$this->api_return(array('status' =>false,'message' => $e->getMessage()),self::HTTP_SERVER_ERROR);exit();
 		}
 	}
-
-
 	/**
 	 * @method : search()
 	 * @date : 2022-06-17
@@ -103,7 +101,7 @@ class Vehicles extends API_Controller {
 	        	$drop_latitude  = $data->drop_latitude;
 	        	//google map api for fecth distance and time and address in array type
 	        	$google_distance = $this->_googole_distance_api($origin_latitude,$origin_longitude,$drop_latitude,$drop_longitude);
-
+				
 	        	//add tile and distance 
 	        	$total_time_in_minutes += $google_distance['time_value'];
 	        	$total_distance += $google_distance['distance_value'];
@@ -114,8 +112,14 @@ class Vehicles extends API_Controller {
 
 	        //vehicle amount calcution 
 	        $result = $this->VehicleModel->vehicle_amount_calculate(
-	        	array('fare_city_id'=>$cities->city_id),
-	        	array('total_time'=>$total_time_in_minutes,'total_distance'=>$total_distance));
+	        	array(
+					'fare_city_id'=>$cities->city_id
+				),
+	        	array(
+					'total_time'=>$total_time_in_minutes,
+					'total_distance'=>$total_distance,
+				)
+			);
 			
 			//store a search request 
 	        $request_data['request_user_id'] = $post->user_id;
@@ -131,6 +135,7 @@ class Vehicles extends API_Controller {
 	        $request_data['request_distance_text'] = $total_distance .' Km.';
 	        $request_data['request_time_text'] = $total_time_in_minutes . ' minutes';
 	        $request_data['request_time_value'] = $total_time_in_minutes;
+
 	        if($request_id = $this->RequestModel->save($request_data)){
 	        	//store a search drop request 
 	        	foreach($post->drop_locations as $key => $data){
