@@ -131,6 +131,18 @@
                         <?= form_error('fare_time_free', '<div class="error">', '</div>'); ?>
                      </div>
                   </div>
+                  <div class="row mb-2 mt-2">
+                     <div class="col-md-6">
+                        <label>Per Kilometer price not Applied</label>
+                        <div class="input-group" id="fare_under_distance">
+                           <input type="text" class="form-control" placeholder="Per Kilometer price not Applied" name="fare_under_distance" value="<?= set_value('fare_under_distance') ?>">
+                        </div>
+                        <?= form_error('fare_under_distance', '<div class="error">', '</div>'); ?>
+                     </div>
+                     <div class="col-md-6">
+                        
+                     </div>
+                  </div>
                   <div class="row mt-4">
                      <div class="col-md-6">
                         <button type="submit" class="btn btn-primary waves-effect waves-light">
@@ -149,11 +161,4 @@
 <!-- End Page-content -->
 <?php include(__DIR__.'/../common/_footer.php'); ?>
 <?php include(__DIR__.'/../common/_get_dependent_location.php'); ?>
-
-
-
-
-
-
-
 
