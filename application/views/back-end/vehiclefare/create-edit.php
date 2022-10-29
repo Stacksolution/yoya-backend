@@ -27,7 +27,7 @@
                   <div class="col-md-4 text-right">
                      <div class="card-footer bg-transparent" style="margin-top: -15px;">
                         <div class="text-center">
-                           <a href="<?= site_url('admin/vehicle') ?>" class="btn btn-outline-dark btn-sm align-middle me-2" title="Pages" style="float: right;">
+                           <a href="<?= site_url('admin/vehiclefare') ?>" class="btn btn-outline-dark btn-sm align-middle me-2" title="Pages" style="float: right;">
                            <i class="bx bx-arrow-back"></i>Vehicle fare
                            </a>
                         </div>
