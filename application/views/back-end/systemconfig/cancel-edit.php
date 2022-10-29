@@ -71,14 +71,14 @@
                   </div>
                   <div class="row mb-2 mt-2">
                      <div class="col-md-6">
-                        <label>base price</label>
+                        <label>Cancel Applied Driver<small>&nbsp Applied Charge For Cancelled Booking.</small></label>
                         <div class="input-group" id="cancel_applied_driver">
                            <input type="text" class="form-control" placeholder="Cancel Applied Driver" name="cancel_applied_driver" value="<?= set_value('cancel_applied_driver',$cancel->cancel_applied_driver) ?>">
                         </div>
                         <?= form_error('cancel_applied_driver', '<div class="error">', '</div>'); ?>
                      </div>
                      <div class="col-md-6">
-                        <label>General Price</label>
+                        <label>Cancel Applied Amount<small>&nbsp Applied Charge After Cancelled Booking.</small></label>
                         <div class="input-group" id="cancel_applied_amount">
                            <input type="text" class="form-control" placeholder="Cancel Applied Amount" name="cancel_applied_amount" value="<?= set_value('cancel_applied_amount',$cancel->cancel_applied_amount) ?>">
                         </div>   
