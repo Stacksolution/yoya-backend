@@ -133,7 +133,7 @@
                   </div>
                   <div class="row mb-2 mt-2">
                      <div class="col-md-6">
-                        <label>Commission</label>
+                        <label>Fare Under Distance</label>
                         <div class="input-group" id="fare_under_distance">
                            <input type="text" class="form-control" placeholder="Per Kilometer price not Applied" name="fare_under_distance" value="<?= set_value('fare_under_distance',$vehiclefare_data->fare_under_distance) ?>">
                         </div>
