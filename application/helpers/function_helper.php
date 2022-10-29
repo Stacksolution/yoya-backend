@@ -112,9 +112,9 @@ if (!function_exists('uploads_image')) {
 if (!function_exists('currency_symbols')) {
     function currency_symbols($string = null) {
         if(!empty($string)){
-            $string  = $string . ' ';  
+            $string  = $string;  
         }else{
-            $string  = '-';  
+            $string  = '';  
         }
         return $string;
     }

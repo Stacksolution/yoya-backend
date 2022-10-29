@@ -45,7 +45,7 @@ class MY_Controller extends CI_Controller {
     }
 
     public function _googole_distance_api($pickuplat, $pickuplang, $destinationlat, $destinationlang) {
-        $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" . $pickuplat . "," . $pickuplang . "&destinations=" . $destinationlat . "," . $destinationlang . "&mode=walking&departure_time=now&avoid=indoor&language=en-US&key=" . $this->data['config']['google_key'];
+        $url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" . $pickuplat . "," . $pickuplang . "&destinations=" . $destinationlat . "," . $destinationlang . "&mode=Driving&departure_time=now&avoid=indoor&language=en-US&key=" . $this->data['config']['google_key'];
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -157,6 +157,7 @@ class MY_AdminController extends MY_Controller {
         $this->load->model('admin-models/DocumentsModel');
         $this->load->model('admin-models/RentalPakageModel');
         $this->load->model('admin-models/RentalFareModel');
+	    $this->load->model('admin-models/TransportfareModel');
     }
 }
 

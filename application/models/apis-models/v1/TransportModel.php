@@ -1,3 +1,4 @@
+
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 class TransportModel extends CI_Model {
@@ -32,7 +33,6 @@ class TransportModel extends CI_Model {
 			foreach($return->result() as $key => $data){
 				$return->result()[$key]->vehicle_icon = image_assets($data->vehicle_icon); 
                 $return->result()[$key]->country = $this->CountryModel->_fetch_single(array('country_id'=>$data->fare_country_id));
-				
 			}
 			return $return;
 		} catch (Exception $e) {
