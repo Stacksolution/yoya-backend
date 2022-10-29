@@ -27,7 +27,7 @@
                   <div class="col-md-4 text-right">
                      <div class="card-footer bg-transparent" style="margin-top: -15px;">
                         <div class="text-center">
-                           <a href="<?= site_url('admin/vehicle') ?>" class="btn btn-outline-dark btn-sm align-middle me-2" title="Pages" style="float: right;">
+                           <a href="<?= site_url('admin/vehiclefare') ?>" class="btn btn-outline-dark btn-sm align-middle me-2" title="Pages" style="float: right;">
                            <i class="bx bx-arrow-back"></i>Vehicle fare
                            </a>
                         </div>
@@ -46,7 +46,7 @@
                   <div class="col-md-6">
                      <label>Select State</label>
                      <div class="input-group" id="state">
-                        <?= form_dropdown('state_id','',set_value('state_id',$vehiclefare_data->fare_state_id),'class="form-control" id="state_id" placeholder="Select State"') ?>
+                        <?= form_dropdown('state_id',$states,set_value('state_id',$vehiclefare_data->fare_state_id),'class="form-control" id="state_id" placeholder="Select State"') ?>
                      </div>
                      <?= form_error('state_id', '<div class="error">', '</div>'); ?>
                   </div>
@@ -55,7 +55,7 @@
                   <div class="col-md-6">
                      <label>Select City</label>
                      <div class="input-group" id="city_id">
-                        <?= form_dropdown('city_id','',set_value('city_id',$vehiclefare_data->fare_city_id),'class="form-control" id="city_id" placeholder="Select city" ') ?>
+                        <?= form_dropdown('city_id',$cities,set_value('city_id',$vehiclefare_data->fare_city_id),'class="form-control" id="city_id" placeholder="Select city" ') ?>
                      </div>
                      <?= form_error('city_id', '<div class="error">', '</div>'); ?>
                   </div>
@@ -131,6 +131,18 @@
                         <?= form_error('fare_time_free', '<div class="error">', '</div>'); ?>
                      </div>
                   </div>
+                  <div class="row mb-2 mt-2">
+                     <div class="col-md-6">
+                        <label>Commission</label>
+                        <div class="input-group" id="fare_under_distance">
+                           <input type="text" class="form-control" placeholder="Per Kilometer price not Applied" name="fare_under_distance" value="<?= set_value('fare_under_distance',$vehiclefare_data->fare_under_distance) ?>">
+                        </div>
+                        <?= form_error('fare_under_distance', '<div class="error">', '</div>'); ?>
+                     </div>
+                     <div class="col-md-6">
+                        
+                     </div>
+                  </div>
                   <div class="row mt-4">
                      <div class="col-md-6">
                         <button type="submit" class="btn btn-primary waves-effect waves-light">
@@ -149,14 +161,3 @@
 <!-- End Page-content -->
 <?php include(__DIR__.'/../common/_footer.php'); ?>
 <?php include(__DIR__.'/../common/_get_dependent_location.php'); ?>
-
-
-
-
-
-
-
-
-
-
-

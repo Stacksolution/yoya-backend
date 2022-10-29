@@ -91,6 +91,7 @@
                   <li><a href="<?= site_url('admin/setting/google') ?>" key="t-system">App Setting</a></li>
                   <li><a href="<?= site_url('admin/page') ?>" key="t-Content">Content Pages</a></li>
                   <li><a href="<?= site_url('admin/documentrequire') ?>" key="t-Document">Document Required</a></li>
+                  <li><a href="<?= site_url('admin/cancelation') ?>" key="t-Document">Cancelation Charges </a></li>
                </ul>
             </li>
             <li>
