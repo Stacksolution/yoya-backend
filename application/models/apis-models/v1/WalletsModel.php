@@ -45,14 +45,13 @@ class WalletsModel extends CI_Model {
 		}
 	}
 	
-	public function pay_booking_amount($request){
+	public function pay_booking_amount($booking){
 	    try {
-	        $booking_amount = ($request->booking_total_amount + $request->booking_tax_amount) - $request->booking_coupon_amount;
-	        $wallet['wallet_amount']  = $booking_amount; 
+	        $wallet['wallet_amount']  = $booking->booking_total_amount; 
 	        $wallet['wallet_description'] = 'Trip charge !';
 	        $wallet['wallet_transaction_type'] = 0;
 	        $wallet['wallet_status'] = 1;
-	        $wallet['wallet_user_id'] = $request->booking_user_id;
+	        $wallet['wallet_user_id'] = $booking->booking_user_id;
 	        $wallet['wallet_uses'] = 'pay_booking_amount';
 	        $this->save($wallet);
 	        return $this->db->insert_id();
@@ -62,21 +61,15 @@ class WalletsModel extends CI_Model {
 		}
 	}
 	
-	public function applied_service_charge($request){
+	public function applied_service_charge($booking){
 	    try {
-	        $vehicle  = $this->VehicleModel->fetch_vehicle_for_ride_where(array('fare_vehicle_id'=>1,'fare_city_id'=>$request->booking_pickup_city_id));
-	        $fare_commission = 0;
-	        if($vehicle->num_rows() > 0 ){
-	            $fare_commission = $vehicle->row()->fare_commission;
-	        }
-	        
-	        $service_charge = $request->booking_total_amount / 100 * $fare_commission;
-	        $wallet['wallet_amount']  = $service_charge;
+
+	        $wallet['wallet_amount']  = $booking->booking_commission;
 	        $wallet['wallet_description'] = 'Service charge !';
 	        $wallet['wallet_transaction_type'] = 0;
-	        $wallet['wallet_status'] = 1;
-	        $wallet['wallet_user_id'] = $request->booking_driver_id;
-	        $wallet['wallet_uses'] = 'applied_service_charge';
+	        $wallet['wallet_status']  = 1;
+	        $wallet['wallet_user_id'] = $booking->booking_driver_id;
+	        $wallet['wallet_uses']    = 'applied_service_charge';
 	        $this->save($wallet);
 	        return $this->db->insert_id();
 		} catch (Exception $e) {
@@ -85,13 +78,13 @@ class WalletsModel extends CI_Model {
 		}
 	}
 	
-	public function settelment_booking_amount($request){
+	public function settelment_booking_amount($booking){
 	    try {
-		    $wallet['wallet_amount']  = $request->booking_total_amount;
+		    $wallet['wallet_amount']  = $booking->booking_amount_settled;
 	        $wallet['wallet_description'] = 'Trip amount received !';
 	        $wallet['wallet_transaction_type'] = 1;
 	        $wallet['wallet_status'] = 1;
-	        $wallet['wallet_user_id'] = $request->booking_driver_id;
+	        $wallet['wallet_user_id'] = $booking->booking_driver_id;
 	        $wallet['wallet_uses'] = 'settelment_booking_amount';
 	        $this->save($wallet);
 	        return $this->db->insert_id();

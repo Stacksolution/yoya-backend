@@ -40,22 +40,84 @@ class Request extends API_Controller {
 	        if(empty($cities)){
 	            $this->api_return(array('status' =>false,'message' =>lang('server_error')),self::HTTP_SERVER_ERROR);exit();
 	        }
+			$vehicle_id = $post->vehicle_id;
             //vehicle amount calcution 
 	        $result = $this->VehicleModel->vehicle_amount_calculate(
-	        	array('fare_city_id'=>@$cities->city_id),
-	        	array('total_time'=>@$request->request_time_value,'total_distance'=>@$request->request_distance_value))->row();
+	        	array(
+					'vehicle_id'=>$vehicle_id,
+					'fare_city_id'=>@$cities->city_id
+				),
+	        	array(
+					'total_time'=>@$request->request_time_value,
+					'total_distance'=>@$request->request_distance_value
+				),
+				)->row();
 	        if(empty($result)){
 	            $this->api_return(array('status' =>false,'message' =>lang('server_error')),self::HTTP_SERVER_ERROR);exit();
 	        }
-	        
+			
+			//amount details and taxs ====================================================
+			$country_id  = $result->country->country_id;
+			//amount details manipulation ================================================
+			$total_amount = $result->fare_total_amount_value;
+			$courrency_code = currency_symbols(@$result->country->country_currency_symbols);
+			$amount_details = [
+	        	array(
+	        		'label'=>'Base Fare',
+	        		'value'=>$courrency_code.(string)round($result->fare_base_price),
+	        		'is_customer_visible'=>true,
+	        		'is_driver_visible'=>true
+				),
+				array(
+	        		'label'=>'Trip',
+	        		'value'=>$courrency_code.(string)round($total_amount),
+	        		'is_customer_visible'=>true,
+	        		'is_driver_visible'=>true
+	        	)
+	        ];
+			//service charge apply 
+			if($result->fare_commission > 0){
+				$service_charges = round($total_amount / 100 * $result->fare_commission);
+				array_push(
+					$amount_details,
+					array(
+						'label'=>'Fee',
+						'value'=>$courrency_code.$service_charges,
+						'is_customer_visible'=>false,
+						'is_driver_visible'=>true
+					)
+				);
+			}
+			$taxes  = $this->TaxesModel->fetch_taxes(array('tax_country_id'=>$country_id))->result();
+			//tax apply this booking
+	        $calculate_tax = 0;
+	        $taxes_amount  = 0;
+	        foreach($taxes as $key => $data){
+	            $calculate_tax = round($total_amount / 100 * $data->tax_rate);
+	            $taxes_amount  += $calculate_tax;
+	        }
+			if($taxes_amount > 0){
+				array_push(
+					$amount_details,
+					array(
+						'label'=>'Taxes',
+						'value'=>$courrency_code.(string)round($taxes_amount),
+						'is_customer_visible'=>true,
+						'is_driver_visible'=>false
+					)
+				);
+			}
+			$request_data['request_amout_details'] = json_encode($amount_details);
+			$total_amount = $total_amount;
+			//amount details manipulation ===================================================
 	        $users = $this->UsersModel->fetch_user_data_for_request_by_id($post->user_id);
 	        $request_data['request_user_details'] = json_encode($users);
 	        $request_data['request_booking_type'] = 'current_ride';
-	        $request_data['request_vehicle_id'] = $post->vehicle_id;
-	        $request_data['request_total_amount'] = @$result->fare_total_amount;
-	        $request_data['request_amout_details'] = @json_encode($result);
+	        $request_data['request_vehicle_id']   = $post->vehicle_id;
+	        $request_data['request_total_amount'] = $total_amount;
+			$request_data['request_tax_amount'] = $taxes_amount; //for request is pendig or search
 	        $request_data['request_status'] = '1'; //for request is pendig or search
-            
+			
 	        if($this->RequestModel->update(array('request_id'=>$post->request_id),$request_data)){
 		        $this->api_return(array('status' =>true,'message' =>lang('ride_request_send'),'request_id'=>$post->request_id),self::HTTP_OK);exit();
 	        }else{
@@ -88,28 +150,33 @@ class Request extends API_Controller {
 	        if(empty($post->payment_method) || !isset($post->payment_method)){
 		        $this->api_return(array('status' =>false,'message' => lang('error_payment_mode_missing')),self::HTTP_BAD_REQUEST);exit();
 	        }
-	        if(empty($post->booking_date) || !isset($post->booking_date)){
+	        if(empty($post->booking_date) || !isset($post->booking_date) || is_old_date($post->booking_date)){
 		        $this->api_return(array('status' =>false,'message' => lang('error_booking_date_missing')),self::HTTP_BAD_REQUEST);exit();
 	        }
 	        if(empty($post->vehicle_id) || !isset($post->vehicle_id)){
 		        $this->api_return(array('status' =>false,'message' => lang('error_vehicle_type_missing')),self::HTTP_BAD_REQUEST);exit();
 	        }
-           
+			$request_id = $post->request_id;
 	        //check request se
-	        if(!$this->RequestModel->is_exist(array('request_id'=>$post->request_id))){
+	        if(!$this->RequestModel->is_exist(array('request_id'=>$request_id))){
 	        	$this->api_return(array('status' =>false,'message' => lang('data_not_found')),self::HTTP_BAD_REQUEST);exit();
 	        }
-
-	        $users = $this->UsersModel->fetch_user_data_for_request_by_id($post->user_id);
-	        $request_data['request_user_details'] = json_encode($users);
+			
 	        $request_data['request_payments_mode']= json_encode($post->payment_method);
 	        $request_data['request_booking_date'] = date("Y-m-d H:i:s",strtotime($post->booking_date));
 	        $request_data['request_booking_type'] = 'current_ride';
 	        $request_data['request_vehicle_id'] = $post->vehicle_id;
-            $request_data['request_status'] = '1'; //for request is pendig or search
-            
-	        if($this->RequestModel->update(array('request_id'=>$post->request_id),$request_data)){
+            $request_data['request_status'] 	= '1'; //for request is pendig or search
+
+	        if($this->RequestModel->update(array('request_id'=>$request_id),$request_data)){
 	        	if(in_array('cash',$post->payment_method,true)){
+		        	/*==============================================
+		        	  ===================send request===============*/
+		        	  $this->under_radius_send_request($post->request_id);
+		        	/*==============================================
+		        	  ===================send request===============*/
+		        	$this->api_return(array('status' =>true,'message' =>lang('ride_request_send'),'request_id'=>$post->request_id),self::HTTP_OK);exit();
+		        }else if(in_array('wallets',$post->payment_method,true)){
 		        	/*==============================================
 		        	  ===================send request===============*/
 		        	  $this->under_radius_send_request($post->request_id);
@@ -148,8 +215,6 @@ class Request extends API_Controller {
 	        	'log_create_at'=>date("Y-m-d H:i:s"),
 	        	'log_user_by'=>$result->request_user_id
 	        ));
-	        
-	        
 		}
 		
 		if(!empty($tokens)){
@@ -163,7 +228,7 @@ class Request extends API_Controller {
     	                array(
     	                    "click_action"  =>"FLUTTER_NOTIFICATION_CLICK",
     	                    "sound"         =>"default", 
-    	                    "screen" 		=>"",
+    	                    "screen" 		=>"cab",
     	                    "data_id"		=>$request_id,
     	                ));
     	    $this->pushnotification->sendMultiple($tokens);
@@ -209,7 +274,7 @@ class Request extends API_Controller {
     	{
     		$this->_apiConfig([
 	            'methods' => ['POST'],
-	            //'key' => ['header',$this->config->item('api_fixe_header_key')],
+	            'key' => ['header',$this->config->item('api_fixe_header_key')],
 	        ]);
 	        $post = json_decode(file_get_contents('php://input'));
     		if(empty($post->user_id) || !isset($post->user_id)){
@@ -235,7 +300,7 @@ class Request extends API_Controller {
 	        
 	        $request_data['request_status'] = 2; //for request is accepted or search
 		    $this->RequestModel->update(array('request_id'=>$post->request_id),$request_data);
-		        
+		    
 	        $booking['booking_order_id'] = $booking_id;
 	        $booking['booking_user_id'] = $request->request_user_id;
 	        $booking['booking_driver_id'] = $post->user_id;
@@ -266,9 +331,9 @@ class Request extends API_Controller {
 	        $booking['booking_status_history'] = $booking_status['history'];
 	        $booking['booking_otp'] = otp_generate(4);
 	        $booking['booking_request_id']  = $request->request_id;
-	        
+			$booking['booking_tax_amount']  = $request->request_tax_amount;
+
 	        if($booking_id = $this->BookingModel->save($booking)){
-	            
 	            foreach($request->request_drop_locations as $key => $data){
 		        	$drop['drop_latitude'] = $data->drop_latitude;
 			        $drop['drop_longitude'] = $data->drop_longitude;
