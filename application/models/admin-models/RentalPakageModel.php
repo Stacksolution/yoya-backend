@@ -34,6 +34,36 @@ class RentalPakageModel extends CI_Model {
 		}
 	}
 
+
+
+	public function fetch_all(){
+		try {
+			$this->db->select('*');
+			$this->db->from($this->db->dbprefix('rental_packages'));
+			$this->db->order_by('rental_id','desc');
+			$return = $this->db->get();
+			return $return;
+		} catch (Exception $e) {
+		  log_message('error',$e->getMessage());
+		  return;
+		}
+	}
+
+	public function single($where){
+		try {
+			$this->db->select('*');
+			$this->db->from($this->db->dbprefix('rental_packages'));
+			if(!empty($where)){
+				$this->db->where($where);
+			}
+			$return = $this->db->get()->row();
+			return $return;
+		} catch (Exception $e) {
+		  log_message('error',$e->getMessage());
+		  return;
+		}
+	}
+
 	public function _dropdownlist($where = null){
         try {
 	        $this->db->select('');
