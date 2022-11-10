@@ -15,9 +15,27 @@ class Booking extends MY_AdminController {
 	 * */
 	public function index(){
 		$this->data['bookings'] = $this->BookingModel->fetch_all_booking();
-		// echo "<pre>"; print_r($this->data['bookings']->result());exit; echo "</pre>";
 		$this->data['meta'] = array('meta_title'=>'Booking Manage','meta_description'=>'');
 		$this->load->view('back-end/booking/index-page',$this->data);
+	}
+
+	public function complete(){
+		$this->data['bookings'] = $this->BookingModel->fetch_all_complete_booking();
+		// echo "<pre>"; print_r($this->data['bookings']->result());exit; echo "</pre>";
+		$this->data['meta'] = array('meta_title'=>'Booking Manage','meta_description'=>'');
+		$this->load->view('back-end/booking/completebooking',$this->data);
+	}
+	public function ongoing(){
+		$this->data['bookings'] = $this->BookingModel->fetch_all_ongoing_booking();
+		// echo "<pre>"; print_r($this->data['bookings']->result());exit; echo "</pre>";
+		$this->data['meta'] = array('meta_title'=>'Booking Manage','meta_description'=>'');
+		$this->load->view('back-end/booking/ongoingbooking',$this->data);
+	}
+	public function cancel(){
+		$this->data['bookings'] = $this->BookingModel->fetch_all_cancel_booking();
+		// echo "<pre>"; print_r($this->data['bookings']->result());exit; echo "</pre>";
+		$this->data['meta'] = array('meta_title'=>'Booking Manage','meta_description'=>'');
+		$this->load->view('back-end/booking/cancelbooking',$this->data);
 	}
 	/**
 	 * @method : view()
