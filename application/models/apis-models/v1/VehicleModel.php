@@ -7,7 +7,7 @@ class VehicleModel extends CI_Model {
 	}
 
 	public function fetch_vehicle_for_meter_where($where){
-		try {
+		try {	
 			$this->db->select('
 				vehicle_id,
 				vehicle_name,

@@ -34,7 +34,10 @@
                <span key="t-booking"><span>Manage Bookings</span>
                </a>
                <ul class="sub-menu" aria-expanded="false">
-                  <li><a href="<?= site_url('admin/booking') ?>" key="t-booking">Booking</a></li>
+                  <li><a href="<?= site_url('admin/booking') ?>" key="t-booking">All Booking</a></li>
+                  <li><a href="<?= site_url('admin/booking/complete') ?>" key="t-booking">Complete Booking</a></li>
+                  <li><a href="<?= site_url('admin/booking/ongoing') ?>" key="t-booking">Ongoing Booking</a></li>
+                  <li><a href="<?= site_url('admin/booking/cancel') ?>" key="t-booking">Cancel Booking</a></li>
                </ul>
             </li>
             <li>
@@ -89,9 +92,11 @@
                <ul class="sub-menu" aria-expanded="false">
                   <li><a href="<?= site_url('admin/setting') ?>" key="t-system">Admin Setting</a></li>
                   <li><a href="<?= site_url('admin/setting/google') ?>" key="t-system">App Setting</a></li>
+                  <li><a href="<?= site_url('admin/setting/sms') ?>" key="t-system">SMS Setting</a></li>
                   <li><a href="<?= site_url('admin/page') ?>" key="t-Content">Content Pages</a></li>
                   <li><a href="<?= site_url('admin/documentrequire') ?>" key="t-Document">Document Required</a></li>
                   <li><a href="<?= site_url('admin/cancelation') ?>" key="t-Document">Cancelation Charges </a></li>
+                  <li><a href="<?= site_url('admin/rentalpackage') ?>" key="t-Document">Rental Package </a></li>
                </ul>
             </li>
             <li>
