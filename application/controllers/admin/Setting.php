@@ -20,6 +20,11 @@ class Setting extends MY_AdminController {
     $this->data['meta']  = array('meta_title'=>'Setting','meta_description'=>'');
     $this->load->view('back-end/setting/googles/index-page',$this->data);
   }
+
+  public function sms(){
+    $this->data['meta']  = array('meta_title'=>'Setting','meta_description'=>'');
+    $this->load->view('back-end/setting/messages/index-page',$this->data);
+  }
   
   public function update(){
     foreach($this->input->post() as $key => $value){
