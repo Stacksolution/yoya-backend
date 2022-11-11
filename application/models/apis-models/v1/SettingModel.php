@@ -20,4 +20,23 @@ class SettingModel extends CI_Model {
 		  return;
 		}
 	}
+
+	public function save($data){
+		try {
+			$return = $this->db->insert($this->db->dbprefix('settings'),$data);
+			return $this->db->insert_id();
+		}catch (Exception $e){
+		  log_message('error',$e->getMessage());
+		  return;
+		}
+	}
+
+	public function update($where,$data){
+		try {
+			return $this->db->where($where)->update($this->db->dbprefix('settings'),$data);
+		} catch (Exception $e){
+		  log_message('error',$e->getMessage());
+		  return;
+		}
+	}
 }

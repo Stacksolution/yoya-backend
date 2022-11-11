@@ -1,5 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 class MY_Controller extends CI_Controller {
+
     public function __construct() {
         parent::__construct();
         $this->data['config']['app_mode'] = "production";
@@ -18,30 +19,55 @@ class MY_Controller extends CI_Controller {
     }
 
     public function _send_sms($mobile, $message, $tmpid = null, $unicode = null) {
-        //Your authentication key
-        $authKey = "4ae2c029edbb60021d673a961d9159b6";
-        //Multiple mobiles numbers separated by comma
-        $mobileNumber = $mobile;
-        //Sender ID,While using route4 sender id should be 6 characters long.
-        $senderId = "DKRNTI";
-        //Your message to send, Add URL encoding here.
-        $message = urlencode($message);
-        //Define route
-        $route = "4";
-        //Prepare you post parameters
-        $postData = array('authkey' => $authKey, 'mobiles' => $mobileNumber, 'message' => $message, 'sender' => $senderId, 'route' => $route, 'DLT_TE_ID' => $tmpid);
-        //API URL
-        $url = "https://smsapi.thedigitalkranti.com/api/v1/sms/send";
-        // init the resource
-        $ch = curl_init();
-        curl_setopt_array($ch, array(CURLOPT_URL => $url, CURLOPT_RETURNTRANSFER => true, CURLOPT_POST => true, CURLOPT_POSTFIELDS => $postData));
-        //Ignore SSL certificate verification
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        //get response
-        $output = curl_exec($ch);
-        curl_close($ch);
-        return $output;
+        if(@$this->data['config']['geez_sms_is_active'] == 1){
+            $token = @$this->data['config']['geez_api_token'];  
+            //Your message to send, Add URL encoding here.
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://api.geezsms.com/api/v1/sms/send',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => array(
+                    'token' => $token,
+                    'phone' => $mobile,
+                    'msg'   => $message
+                ),
+            ));
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            return $response;
+
+        }else if(@$this->data['config']['msg91_sms_is_active'] == 1){
+            $authKey = @$this->data['config']['msg91_auth_key'];
+            $senderId= @$this->data['config']['msg91_sender_id'];
+            //Multiple mobiles numbers separated by comma
+            $mobileNumber = $mobile;
+            //Your message to send, Add URL encoding here.
+            $message = urlencode($message);
+            //Define route
+            $route = "4";
+            //Prepare you post parameters
+            $postData = array('authkey' => $authKey, 'mobiles' => $mobileNumber, 'message' => $message, 'sender' => $senderId, 'route' => $route, 'DLT_TE_ID' => $tmpid);
+            //API URL
+            $url = "https://smsapi.thedigitalkranti.com/api/v1/sms/send";
+            // init the resource
+            $ch = curl_init();
+            curl_setopt_array($ch, array(CURLOPT_URL => $url, CURLOPT_RETURNTRANSFER => true, CURLOPT_POST => true, CURLOPT_POSTFIELDS => $postData));
+            //Ignore SSL certificate verification
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            //get response
+            $response = curl_exec($ch);
+            curl_close($ch);
+            return $response;
+        }
     }
 
     public function _googole_distance_api($pickuplat, $pickuplang, $destinationlat, $destinationlang) {
