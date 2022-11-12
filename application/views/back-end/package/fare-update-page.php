@@ -101,10 +101,11 @@
                   </div>
                   <div class="row mb-2 mt-2">
                      <div class="col-md-6">
-                        <label>Commission</label>
+                        <label><?= $config['web_appname'] ?> Service charges</label>
                         <div class="input-group" id="fare_commission">
-                           <input type="text" class="form-control" placeholder="fare commission" name="fare_commission" value="<?= set_value('fare_commission') ?>">
+                           <input type="text" class="form-control" placeholder="<?= $config['web_appname'] ?> Service charges" name="fare_commission" value="<?= set_value('fare_commission',$single->fare_commission) ?>">
                         </div>
+                        <small><span class="text-danger">Note:</span> When user complete ride or booking then <?= $config['web_appname'] ?> service charges applicable from driver collected amount</small>
                         <?= form_error('fare_commission', '<div class="error">', '</div>'); ?>
                      </div>
                   </div>
@@ -121,8 +122,6 @@
          </div>
       </div>
    </div>
-   <!-- container-fluid -->
 </div>
-<!-- End Page-content -->
 <?php include(__DIR__.'/../common/_footer.php'); ?>
 <?php include(__DIR__.'/../common/_get_dependent_location.php'); ?>

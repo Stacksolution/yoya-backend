@@ -5,7 +5,6 @@ class DriverModel extends CI_Model {
 		parent::__construct();
 	}
 
-
 	public function save($data){
 		try {
 			$return = $this->db->insert($this->db->dbprefix('customers'),$data);
@@ -44,4 +43,21 @@ class DriverModel extends CI_Model {
 		  return;
 		}
 	}
+
+	public function booking_counts($user_id,$where_in = null){
+        try {
+			$this->db->select('*');
+			$this->db->from($this->db->dbprefix('bookings'));
+			$this->db->where_in('booking_driver_id',$user_id);
+            if($where_in != null){
+                $this->db->where_in('booking_status',$where_in);
+            }
+			$count = $this->db->get()->num_rows();
+            
+			return $count;
+		} catch (Exception $e) {
+		  log_message('error',$e->getMessage());
+		  return;
+		}
+    }
 } 

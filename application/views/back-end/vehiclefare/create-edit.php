@@ -71,62 +71,67 @@
                   <div class="col-md-6">
                      <label>Base Price</label>
                      <div class="input-group" id="fare_base_price">
-                        <input type="text" class="form-control" placeholder="base price" name="fare_base_price" value="<?= set_value('fare_base_price',$vehiclefare_data->fare_base_price) ?>">
+                        <input type="text" onkeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1')" class="form-control" placeholder="base price" name="fare_base_price" value="<?= set_value('fare_base_price',$vehiclefare_data->fare_base_price) ?>">
                      </div>
                      <?= form_error('fare_base_price', '<div class="error">', '</div>'); ?>
                   </div>
                   <div class="col-md-6">
                      <label>General Price</label>
                      <div class="input-group" id="fare_general_price">
-                        <input type="text" class="form-control" placeholder="general price" name="fare_general_price" value="<?= set_value('fare_general_price',$vehiclefare_data->fare_general_price) ?>">
+                        <input type="text" onkeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1')" class="form-control" placeholder="General price" name="fare_general_price" value="<?= set_value('fare_general_price',$vehiclefare_data->fare_general_price) ?>">
                      </div>
+                     <small><span class="text-danger">Note:</span> General Price basically used for normal timing not applicable business and night hour time</small>
                      <?= form_error('fare_general_price', '<div class="error">', '</div>'); ?>
                   </div>
                   </div>
                   <div class="row mb-2 mt-2">
                      <div class="col-md-6">
-                        <label>Business Price</label>
+                        <label>Business hour's price</label>
                         <div class="input-group" id="fare_business_price">
-                           <input type="text" class="form-control" placeholder="business price" name="fare_business_price" value="<?= set_value('fare_business_price',$vehiclefare_data->fare_business_price) ?>">
+                           <input type="text" onkeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1')" class="form-control" placeholder="Business hour's price" name="fare_business_price" value="<?= set_value('fare_business_price',$vehiclefare_data->fare_business_price) ?>">
                         </div>
+                        <small><span class="text-danger">Note:</span>Business hour's price applicable only for business timing</small>
                         <?= form_error('fare_business_price', '<div class="error">', '</div>'); ?>
                      </div>
                      <div class="col-md-6">
-                        <label>Night Price</label>
+                     <label>Night hour's price</label>
                         <div class="input-group" id="fare_business_price">
-                           <input type="text" class="form-control" placeholder="night price" name="fare_night_price" value="<?= set_value('fare_night_price',$vehiclefare_data->fare_night_price) ?>">
+                           <input type="text" onkeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1')" class="form-control" placeholder="night price" name="fare_night_price" value="<?= set_value('fare_night_price',$vehiclefare_data->fare_night_price) ?>">
                         </div>
+                        <small><span class="text-danger">Note:</span> Noight hour's price applicable only for night timing</small>
                         <?= form_error('fare_night_price', '<div class="error">', '</div>'); ?>
                      </div>
                   </div>
                   <div class="row mb-2 mt-2">
                      <div class="col-md-6">
-                        <label>Waiting Price</label>
+                        <label>Waiting charges</label>
                         <div class="input-group" id="fare_extra_waiting_price">
-                           <input type="text" class="form-control" placeholder="waiting price" name="fare_extra_waiting_price" value="<?= set_value('fare_extra_waiting_price',$vehiclefare_data->fare_extra_waiting_price) ?>">
+                           <input type="text" onkeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1')" class="form-control" placeholder="Waiting charges" name="fare_extra_waiting_price" value="<?= set_value('fare_extra_waiting_price',$vehiclefare_data->fare_extra_waiting_price) ?>">
                         </div>
+                        <small><span class="text-danger">Note:</span> When user free time limit is exceeded then applicable extra waiting charges</small>
                         <?= form_error('fare_extra_waiting_price', '<div class="error">', '</div>'); ?>
                      </div>
                      <div class="col-md-6">
-                        <label>Stop Price</label>
+                        <label>Stop charges</label>
                         <div class="input-group" id="fare_stop_price">
-                           <input type="text" class="form-control" placeholder="Stop price" name="fare_stop_price" value="<?= set_value('fare_stop_price',$vehiclefare_data->fare_stop_price) ?>">
+                           <input type="text" onkeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1')" class="form-control" placeholder="Stop charges" name="fare_stop_price" value="<?= set_value('fare_stop_price',$vehiclefare_data->fare_stop_price) ?>">
                         </div>
                         <?= form_error('fare_stop_price', '<div class="error">', '</div>'); ?>
                      </div>
                   </div>
                   <div class="row mb-2 mt-2">
                      <div class="col-md-6">
-                        <label>Commission</label>
+                        <label><?= $config['web_appname'] ?> Service charges</label>
                         <div class="input-group" id="fare_commission">
-                           <input type="text" class="form-control" placeholder="fare commission" name="fare_commission" value="<?= set_value('fare_commission',$vehiclefare_data->fare_commission) ?>">
+                           <input type="text" onkeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1')" class="form-control" placeholder="<?= $config['web_appname'] ?> Service charges" name="fare_commission" value="<?= set_value('fare_commission',$vehiclefare_data->fare_commission) ?>">
                         </div>
+                        <small><span class="text-danger">Note:</span> When user complete ride or booking then <?= $config['web_appname'] ?> service charges applicable from driver collected amount</small>
                         <?= form_error('fare_commission', '<div class="error">', '</div>'); ?>
                      </div>
                      <div class="col-md-6">
                         <label>Fare Time free</label>
                         <div class="input-group" id="fare_time_free">
-                           <input type="text" class="form-control" placeholder="Stop price" name="fare_time_free" value="<?= set_value('fare_time_free',$vehiclefare_data->fare_time_free) ?>">
+                           <input type="text" onkeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1')" class="form-control" placeholder="Stop price" name="fare_time_free" value="<?= set_value('fare_time_free',$vehiclefare_data->fare_time_free) ?>">
                         </div>
                         <?= form_error('fare_time_free', '<div class="error">', '</div>'); ?>
                      </div>
@@ -135,12 +140,10 @@
                      <div class="col-md-6">
                         <label>Fare Under Distance</label>
                         <div class="input-group" id="fare_under_distance">
-                           <input type="text" class="form-control" placeholder="Per Kilometer price not Applied" name="fare_under_distance" value="<?= set_value('fare_under_distance',$vehiclefare_data->fare_under_distance) ?>">
+                           <input type="text" onkeyup="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1')" class="form-control" placeholder="Per Kilometer price not Applied" name="fare_under_distance" value="<?= set_value('fare_under_distance',$vehiclefare_data->fare_under_distance) ?>">
                         </div>
+                        <small><span class="text-danger">Note:</span> if ride is under this distance then applicable only base price</small>
                         <?= form_error('fare_under_distance', '<div class="error">', '</div>'); ?>
-                     </div>
-                     <div class="col-md-6">
-                        
                      </div>
                   </div>
                   <div class="row mt-4">

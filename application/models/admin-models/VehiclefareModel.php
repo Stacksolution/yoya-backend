@@ -23,9 +23,18 @@ class VehiclefareModel extends CI_Model {
 		}
 	}
 	
+	public function delete($where){
+		try {
+			return $this->db->where($where)->delete($this->db->dbprefix('vehicles_fare'));
+		} catch (Exception $e) {
+		  log_message('error',$e->getMessage());
+		  return;
+		}
+	}
+
 	public function fetch_all_vehiclefare(){
 		try {
-			$this->db->select($this->db->dbprefix('vehicles_fare').'.*,'.$this->db->dbprefix('vehicles').'.vehicle_name,'.$this->db->dbprefix('country').'.country_name,'.$this->db->dbprefix('state').'.state_name,'.$this->db->dbprefix('cities').'.city_name');
+			$this->db->select($this->db->dbprefix('vehicles_fare').'.*,'.$this->db->dbprefix('vehicles').'.vehicle_name,'.$this->db->dbprefix('country').'.country_name,country_currency_symbols,'.$this->db->dbprefix('state').'.state_name,'.$this->db->dbprefix('cities').'.city_name');
 			$this->db->from($this->db->dbprefix('vehicles_fare'));
 			$this->db->join($this->db->dbprefix('country'),$this->db->dbprefix('country').'.country_id ='.$this->db->dbprefix('vehicles_fare').'.fare_country_id','left');
 			$this->db->join($this->db->dbprefix('state'),$this->db->dbprefix('state').'.state_id ='.$this->db->dbprefix('vehicles_fare').'.fare_state_id','left');
@@ -71,4 +80,22 @@ class VehiclefareModel extends CI_Model {
         }
         return $data;
     }
+
+	public function check_duplicate_fare($where){
+		try {
+			$this->db->select('*');
+			$this->db->from($this->db->dbprefix('vehicles_fare'));
+			if(!empty($where)){
+				$this->db->where($where);
+			}
+			$checkuser = $this->db->get()->num_rows();
+			if($checkuser > 0){
+				return true;
+			}
+			return false;
+		} catch (Exception $e) {
+		  log_message('error',$e->getMessage());
+		  return;
+		}
+	}
 } 

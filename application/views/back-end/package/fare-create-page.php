@@ -46,7 +46,7 @@
                      <div class="col-md-6">
                         <label>Select State</label>
                         <div class="input-group" id="state">
-                           <?= form_dropdown('state_id','',set_value('state_id'),'class="form-control" id="state_id" placeholder="Select State"') ?>
+                           <?= form_dropdown('state_id',[''=>'--Select State--'],set_value('state_id'),'class="form-control" id="state_id" placeholder="Select State"') ?>
                         </div>
                         <?= form_error('state_id', '<div class="error">', '</div>'); ?>
                      </div>
@@ -55,7 +55,7 @@
                      <div class="col-md-6">
                         <label>Select City</label>
                         <div class="input-group" id="city_id">
-                           <?= form_dropdown('city_id','',set_value('city_id'),'class="form-control" id="city_id" placeholder="Select city" ') ?>
+                           <?= form_dropdown('city_id',[''=>'--Select City--'],set_value('city_id'),'class="form-control" id="city_id" placeholder="Select city" ') ?>
                         </div>
                         <?= form_error('city_id', '<div class="error">', '</div>'); ?>
                      </div>
@@ -101,10 +101,11 @@
                   </div>
                   <div class="row mb-2 mt-2">
                      <div class="col-md-6">
-                        <label>Commission</label>
+                        <label><?= $config['web_appname'] ?> Service charges</label>
                         <div class="input-group" id="fare_commission">
-                           <input type="text" class="form-control" placeholder="fare commission" name="fare_commission" value="<?= set_value('fare_commission') ?>">
+                           <input type="text" class="form-control" placeholder="<?= $config['web_appname'] ?> Service charges" name="fare_commission" value="<?= set_value('fare_commission') ?>">
                         </div>
+                        <small><span class="text-danger">Note:</span> When user complete ride or booking then <?= $config['web_appname'] ?> service charges applicable from driver collected amount</small>
                         <?= form_error('fare_commission', '<div class="error">', '</div>'); ?>
                      </div>
                   </div>

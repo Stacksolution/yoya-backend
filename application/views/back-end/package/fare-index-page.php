@@ -39,13 +39,12 @@
                         <thead class="table-light">
                            <tr>
                               <th class="align-middle">Sr.</th>
-                              <th class="align-middle">Country</th>
-                              <th class="align-middle">State </th>
                               <th class="align-middle">City</th>
                               <th class="align-middle">Vehicle</th>
                               <th class="align-middle">Base Price</th>
                               <th class="align-middle">General Price</th>
                               <th class="align-middle">Urgent Order(Charge)</th>
+                              <th class="align-middle"><?= $config['web_appname'] ?> charges</th>
                               <th class="align-middle">Action</th>
                            </tr>
                         </thead>
@@ -53,13 +52,12 @@
                            <?php foreach($packagefares->result() as $key => $data) { ?>
                            <tr>
                               <td><?= $key + 1 ?></td>
-                              <td><?= $data->country_name ?></td>
-                              <td><?= $data->state_name ?> </td>
                               <td><?= $data->city_name ?> </td>
                               <td><?= $data->vehicle_name ?> </td>
                               <td><?= currency_symbols($data->country_currency_symbols).$data->fare_base_price ?> </td>
                               <td><?= $data->fare_kilometre_from ?> Km. TO <?= $data->fare_kilometre_to ?> Km.</td>
                               <td><?= currency_symbols($data->country_currency_symbols).$data->fare_urgent_order_amount ?> </td>
+                              <td><?= $data->fare_commission ?>%</td>
                               <td>
                                  <div class="d-flex gap-2">
                                     <a href="<?= site_url('admin/packagefare/update/'.$data->fare_id) ?>" class="btn btn-outline-secondary btn-sm"><i class="mdi mdi-pencil font-size-13"></i></a>
@@ -76,10 +74,8 @@
          </div>
       </div>
    </div>
-   <!-- container-fluid -->
 </div>
 
-<!-- End Page-content -->
 <?php include(__DIR__.'/../common/_footer.php'); ?>
 <script src="<?= base_url('back-end/libs/datatables.net/js/jquery.dataTables.min.js') ?>"></script>
 <script src="<?= base_url('back-end/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') ?>"></script>

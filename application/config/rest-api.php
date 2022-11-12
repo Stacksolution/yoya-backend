@@ -4,7 +4,7 @@ $config['api_fixe_header_key'] = '7c4a8d09ca3762af61e59XAPI520943dc26494f8941bad
 /**
  * API Key Header Name
  */
-$config['api_key_header_name'] = 'X-Access-Key';
+$config['api_key_header_name'] = 'x-access-key';
 /**
  * API Key GET Request Parameter Name
  */

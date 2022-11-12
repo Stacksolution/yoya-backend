@@ -73,7 +73,7 @@ class Drivers extends MY_AdminController {
 		$this->form_validation->set_rules('user_name', 'User name', 'required');
 		$this->form_validation->set_rules('user_email', 'User email', 'required');
 		if ($this->form_validation->run() == TRUE){
-			
+
 			$user_data['user_name']  = $this->input->post('user_name');
 			$user_data['user_email'] = $this->input->post('user_email');
 			$user_data['user_update_at'] = date('Y-m-d H:i:s');
@@ -95,11 +95,17 @@ class Drivers extends MY_AdminController {
 	 * 
 	 * */
 	public function dashboard(){
-		$customer_id = $this->uri->segment('4');
-     	$this->data['drivers']     = $this->DriverModel->fetch_single_driver($customer_id);
+		$user_id = $this->uri->segment('4');
+     	$this->data['drivers']     = $this->DriverModel->fetch_single_driver($user_id);
+		$this->data['completeBookings']    = $this->DriverModel->booking_counts($user_id,['booking_completed']);
+		$this->data['cancelBookings'] = $this->DriverModel->booking_counts(['booking_cancel_by_driver','booking_cancel_by_customer','booking_cancel_by_admin']);
+		$this->data['ongoingBookings'] = $this->DriverModel->booking_counts(['booking_accepted','booking_started','booking_reached']);
+		$this->data['walletsBlance'] = $this->WalletModel->balance(['wallet_user_id'=>$user_id]);
+		$this->data['serviceCharge'] = $this->WalletModel->service_charge(['wallet_user_id'=>$user_id,'wallet_uses'=>'applied_service_charge']);
+		$this->data['wallets'] = $this->WalletModel->fetch_all_where(['wallet_user_id'=>$user_id]);
+		$this->data['bookings'] = $this->BookingModel->fetch_all_booking_where(['booking_driver_id'=>$user_id]);
+		
 		$this->data['meta'] = array('meta_title'=>'Driver dashboard','meta_description'=>'');
 		$this->load->view('back-end/drivers/dashboard',$this->data);
 	}
-
-
 }

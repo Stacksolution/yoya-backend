@@ -158,3 +158,15 @@ if (!function_exists('tow_date_compare')) {
     }
 }
 
+//this function use for check time and duration     
+if (!function_exists('number_format')) {
+    function number_format($number,$decimal = null) {
+        if($decimal != null){
+            $number = number_format($number,$decimal,",",".");
+        }else{
+            $number = number_format($number,0,",",".");
+        }
+        return $number;
+    }
+}
+

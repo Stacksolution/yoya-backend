@@ -13,7 +13,7 @@ function getstatelist(CountryID) {
         data: {CountryID: CountryID},
         dataType: 'json',
         beforeSend: function (){
-            $('select#state_id').find("option:eq(0)").html("Please wait..");
+            $('select#state_id').find("option:eq(0)").html("Please wait....");
         },
         success: function (json){
             var options = '';
@@ -46,7 +46,7 @@ function getcitylist(StateID) {
         data: {StateID: StateID},
         dataType: 'json',
         beforeSend: function (){
-            $('select#city_id').find("option:eq(0)").html("Please wait..");
+            $('select#city_id').find("option:eq(0)").html("Please wait....");
         },
         success: function (json){
             var options = '';

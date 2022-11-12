@@ -24,7 +24,81 @@
                            <div class="d-flex">
                               <div class="flex-grow-1">
                                  <p class="text-muted fw-medium">Users</p>
-                                 <h4 class="mb-0">0</h4>
+                                 <h5 class="mb-0"><?= number_format($users); ?></h5>
+                              </div>
+                              <div class="mini-stat-icon avatar-sm rounded-circle bg-primary align-self-center">
+                                 <span class="avatar-title">
+                                 <i class="bx bx-user font-size-24"></i>
+                                 </span>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-md-3">
+                     <div class="card mini-stats-wid">
+                        <div class="card-body">
+                           <div class="d-flex">
+                              <div class="flex-grow-1">
+                                 <p class="text-muted fw-medium">Drivers</p>
+                                 <h5 class="mb-0"><?= number_format($drivers); ?></h5>
+                              </div>
+                              <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
+                                 <span class="avatar-title rounded-circle bg-primary">
+                                 <i class="bx bx-user font-size-24"></i>
+                                 </span>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-md-3">
+                     <div class="card mini-stats-wid">
+                        <div class="card-body">
+                           <div class="d-flex">
+                              <div class="flex-grow-1">
+                                 <p class="text-muted fw-medium">All Ride</p>
+                                 <h5 class="mb-0"><?= number_format($bookings); ?></h5>
+                              </div>
+                              <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
+                                 <span class="avatar-title rounded-circle bg-primary">
+                                 <i class="bx bx-car font-size-24"></i>
+                                 </span>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-md-3">
+                     <div class="card mini-stats-wid">
+                        <div class="card-body">
+                           <div class="d-flex">
+                              <div class="flex-grow-1">
+                                 <p class="text-muted fw-medium">Complete Ride</p>
+                                 <h5 class="mb-0"><?= number_format($completeBookings); ?></h5>
+                              </div>
+                              <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
+                                 <span class="avatar-title rounded-circle bg-primary">
+                                 <i class="bx bx-car font-size-24"></i>
+                                 </span>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-xl-13">
+               <div class="row">
+                  <div class="col-md-3">
+                     <div class="card mini-stats-wid">
+                        <div class="card-body">
+                           <div class="d-flex">
+                              <div class="flex-grow-1">
+                                 <p class="text-muted fw-medium">Cancelled Ride</p>
+                                 <h5 class="mb-0"><?= number_format($cancelBookings); ?></h5>
                               </div>
                               <div class="mini-stat-icon avatar-sm rounded-circle bg-primary align-self-center">
                                  <span class="avatar-title">
@@ -40,8 +114,25 @@
                         <div class="card-body">
                            <div class="d-flex">
                               <div class="flex-grow-1">
-                                 <p class="text-muted fw-medium">Drivers</p>
-                                 <h4 class="mb-0">0</h4>
+                                 <p class="text-muted fw-medium">Ongoing Ride</p>
+                                 <h5 class="mb-0"><?= number_format($ongoingBookings); ?></h5>
+                              </div>
+                              <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
+                                 <span class="avatar-title rounded-circle bg-primary">
+                                 <i class="bx bx-car font-size-24"></i>
+                                 </span>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-md-3">
+                     <div class="card mini-stats-wid">
+                        <div class="card-body">
+                           <div class="d-flex">
+                              <div class="flex-grow-1">
+                                 <p class="text-muted fw-medium">All Ride Request</p>
+                                 <h5 class="mb-0"><?= number_format($requests); ?></h5>
                               </div>
                               <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
                                  <span class="avatar-title rounded-circle bg-primary">
@@ -57,29 +148,12 @@
                         <div class="card-body">
                            <div class="d-flex">
                               <div class="flex-grow-1">
-                                 <p class="text-muted fw-medium">Bookings</p>
-                                 <h4 class="mb-0">0</h4>
+                                 <p class="text-muted fw-medium">Schedule Ride</p>
+                                 <h5 class="mb-0">0</h5>
                               </div>
                               <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
                                  <span class="avatar-title rounded-circle bg-primary">
-                                 <i class="bx bx-purchase-tag-alt font-size-24"></i>
-                                 </span>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="col-md-3">
-                     <div class="card mini-stats-wid">
-                        <div class="card-body">
-                           <div class="d-flex">
-                              <div class="flex-grow-1">
-                                 <p class="text-muted fw-medium">Bookings</p>
-                                 <h4 class="mb-0">0</h4>
-                              </div>
-                              <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
-                                 <span class="avatar-title rounded-circle bg-primary">
-                                 <i class="bx bx-purchase-tag-alt font-size-24"></i>
+                                 <i class="bx bx-car font-size-24"></i>
                                  </span>
                               </div>
                            </div>
@@ -93,7 +167,7 @@
             <div class="col-xl-6">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title mb-4">Pie Chart</h4>
+                        <h4 class="card-title mb-4">Pie Chart</h5>
                         <div id="pie-chart" class="e-charts"></div>
                     </div>
                 </div>
@@ -101,7 +175,7 @@
             <div class="col-xl-6">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title mb-4">Pie Chart</h4>
+                        <h4 class="card-title mb-4">Pie Chart</h5>
                         <div id="pie-chart" class="e-charts"></div>
                     </div>
                 </div>
