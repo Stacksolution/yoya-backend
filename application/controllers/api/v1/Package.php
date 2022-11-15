@@ -96,7 +96,14 @@ class Package extends API_Controller {
                 $post->drop_locations[$key]->total_distance = $total_distance;
             }
             //package amount calcution
-            $result = $this->PackageModel->package_amount_calculate(array('fare_city_id' => $cities->city_id), array('total_time' => $total_time_in_minutes, 'total_distance' => $total_distance));
+            $result = $this->PackageModel->package_amount_calculate(
+                array(
+                    'fare_city_id' => $cities->city_id
+                ), array(
+                    'total_time' => $total_time_in_minutes,
+                    'total_distance' => $total_distance
+                )
+            );
             //store a search request
             $request_data['request_user_id'] = $post->user_id;
             $request_data['request_process_id'] = $post->job_process_id;
@@ -187,6 +194,9 @@ class Package extends API_Controller {
             if(empty($post->request_id) || !isset($post->request_id)){
                 $this->api_return(array('status' =>false,'message' => lang('error_user_id_missing')),self::HTTP_BAD_REQUEST);exit();
             }
+            if(empty($post->vehicle_id) || !isset($post->vehicle_id)){
+		        $this->api_return(array('status' =>false,'message' => lang('error_vehicle_type_missing')),self::HTTP_BAD_REQUEST);exit();
+	        }
             if(empty($post->payment_method) || !isset($post->payment_method)){
                 $this->api_return(array('status' =>false,'message' => lang('error_payment_mode_missing')),self::HTTP_BAD_REQUEST);exit();
             }
@@ -207,28 +217,82 @@ class Package extends API_Controller {
             $request_pickup_city_id = $request->request_pickup_city_id;
             $request_distance_value = $request->request_distance_value;
             $vehicle_id = $post->vehicle_id;
-            $result = $this->PackageModel->package_amount_calculate(array('vehicle_id'=>$vehicle_id,'fare_city_id' => $request_pickup_city_id), array('total_time' => $request_time_value, 'total_distance' => $request_distance_value))->row();
+            $booking_date_from = $request->request_booking_date;
+			$booking_date_to = $request->request_booking_date_to;
+
+            $result = $this->PackageModel->package_amount_calculate(
+                array(
+                    'vehicle_id'=>$vehicle_id,
+                    'fare_city_id' => $request_pickup_city_id
+                ), array(
+                    'booking_date_from'=>$booking_date_from,
+					'booking_date_to'=>$booking_date_to,
+                    'total_time' => $request_time_value, 
+                    'total_distance' => $request_distance_value
+                    )
+                )->row();
+            if(empty($result)){
+                $this->api_return(array('status' =>false,'message' => lang('data_not_found')),self::HTTP_BAD_REQUEST);exit();
+            }
 
             $users = $this->UsersModel->fetch_user_data_for_request_by_id($post->user_id);
             $request_data['request_user_details'] = json_encode($users);
             $request_data['request_payments_mode']= json_encode($post->payment_method);
             $request_data['request_booking_date'] = date("Y-m-d H:i:s",strtotime($post->booking_date));
-            $request_data['request_status'] = '1'; //for request is pendig or search
-            $request_data['request_vehicle_id'] = $vehicle_id;
-            $request_data['request_total_amount'] = @$result->fare_total_amount;
-            $request_data['request_amout_details'] = @json_encode($result);
+            $request_data['request_status']       = '1'; //for request is pendig or search
+            $request_data['request_vehicle_id']   = $vehicle_id;
+            $request_data['request_total_amount'] = @$result->fare_total_amount_value;
 
+
+            $country_id  = $result->country->country_id;
+			$total_amount = $result->fare_total_amount_value;
+            $courrency_code = currency_symbols(@$result->country->country_currency_symbols);
+            $amount_details = [
+	        	array(
+	        		'label'=>'Base Fare',
+	        		'value'=>$courrency_code.(string)round($result->fare_base_price),
+	        		'is_customer_visible'=>true,
+	        		'is_driver_visible'=>true
+	        	)
+	        ];
+            $taxes  = $this->TaxesModel->fetch_taxes(array('tax_country_id'=>$country_id))->result();
+			//tax apply this booking
+	        $calculate_tax = 0;
+	        $taxes_amount  = 0;
+	        foreach($taxes as $key => $data){
+	            $calculate_tax = round($total_amount / 100 * $data->tax_rate);
+	            $taxes_amount  += $calculate_tax;
+	        }
+            if($taxes_amount > 0){
+				array_push(
+					$amount_details,
+					array(
+						'label'=>'Taxes',
+						'value'=>$courrency_code.(string)round($taxes_amount),
+						'is_customer_visible'=>true,
+						'is_driver_visible'=>false
+					)
+				);
+			}
+			$request_data['request_amout_details'] = json_encode($amount_details);
             if($this->RequestModel->update(array('request_id'=>$post->request_id),$request_data)){
                 if(in_array('cash',$post->payment_method,true)){
-                    /*==============================================
-                      ===================send request===============*/
-                      $this->under_radius_send_request($post->request_id);
-                    /*==============================================
-                      ===================send request===============*/
-                    $this->api_return(array('status' =>true,'message' =>lang('ride_request_send'),'request_id'=>$post->request_id),self::HTTP_OK);exit();
-                }else{
-                    $this->api_return(array('status' =>false,'message' =>lang('server_error')),self::HTTP_SERVER_ERROR);exit();
-                }
+		        	/*==============================================
+		        	  ===================send request===============*/
+		        	  $this->under_radius_send_request($post->request_id);
+		        	/*==============================================
+		        	  ===================send request===============*/
+		        	$this->api_return(array('status' =>true,'message' =>lang('ride_request_send'),'request_id'=>$post->request_id),self::HTTP_OK);exit();
+		        }else if(in_array('wallets',$post->payment_method,true)){
+		        	/*==============================================
+		        	  ===================send request===============*/
+		        	  $this->under_radius_send_request($post->request_id);
+		        	/*==============================================
+		        	  ===================send request===============*/
+		        	$this->api_return(array('status' =>true,'message' =>lang('ride_request_send'),'request_id'=>$post->request_id),self::HTTP_OK);exit();
+		        }else{
+		        	$this->api_return(array('status' =>false,'message' =>lang('server_error')),self::HTTP_SERVER_ERROR);exit();
+		        }
             }else{
                 $this->api_return(array('status' =>false,'message' =>lang('server_error')),self::HTTP_SERVER_ERROR);exit();
             }
@@ -237,8 +301,6 @@ class Package extends API_Controller {
             exit();
         }
     }
-
-
     /**
      * @method : under_radius_send_request()
      * @date : 2022-06-30
@@ -260,9 +322,7 @@ class Package extends API_Controller {
                 'log_user_name'=>$data->user_name,
                 'log_create_at'=>date("Y-m-d H:i:s"),
                 'log_user_by'=>$result->request_user_id
-            ));
-            
-            
+            )); 
         }
         
         if(!empty($tokens)){
@@ -285,12 +345,6 @@ class Package extends API_Controller {
             $this->RequestLogModel->insert_batch($request_log);
         }
     }
-
-    /**
-     * @method : accepte()
-     * @date : 2022-08-20
-     * @about: This method use for accept request 
-     * */
     /**
      * @method : accepte()
      * @date : 2022-08-01
@@ -328,38 +382,37 @@ class Package extends API_Controller {
             $request_data['request_status'] = 2; //for request is accepted or search
             $this->RequestModel->update(array('request_id'=>$post->request_id),$request_data);
                 
-            $booking['booking_order_id'] = $booking_id;
-            $booking['booking_user_id'] = $request->request_user_id;
-            $booking['booking_driver_id'] = $post->user_id;
-            $booking['booking_driver_details'] = json_encode($driver_details);
-            $booking['booking_vehicle_id'] = $request->request_vehicle_id;
-            $booking['booking_process_id'] = $request->request_process_id;
-            $booking['booking_user_details'] = $request->request_user_details;
-            $booking['booking_total_amount'] = $request->request_total_amount;
-            $booking['booking_amount_details'] = $request->request_coupon_details;
-            $booking['booking_pickup_latitude'] = $request->request_pickup_latitude;
-            $booking['booking_pickup_longitude'] = $request->request_pickup_longitude;
-            $booking['booking_pickup_city'] = $request->request_pickup_city;
-            $booking['booking_pickup_city_id']    = $request->request_pickup_city_id;
-            $booking['booking_pickup_state_id']   = $request->request_pickup_state_id;
-            $booking['booking_pickup_country_id'] = $request->request_pickup_country_id;
-            $booking['booking_pickup_address'] = $request->request_pickup_address;
-            $booking['booking_distance_value'] = $request->request_distance_value;
-            $booking['booking_distance_text'] = $request->request_distance_text;
-            $booking['booking_time_value'] = $request->request_time_value;
-            $booking['booking_time_text'] = $request->request_time_text;
-            $booking['booking_payments_status'] = $request->request_payments_status;
-            $booking['booking_payments_mode'] = $request->request_payments_mode;
-            $booking['booking_transaction_id'] = $request->request_transaction_id;
-            $booking['booking_booking_date'] = $request->request_booking_date;
-            $booking['booking_types'] = $request->request_booking_type;
-            $booking['booking_status'] = $booking_status['status'];
-            $booking['booking_display_status'] = $booking_status['display_status'];
-            $booking['booking_status_history'] = $booking_status['history'];
-            $booking['booking_otp'] = otp_generate(4);
-            $booking['booking_request_id']  = $request->request_id;
+            $booking['booking_order_id']               = $booking_id;
+            $booking['booking_user_id']                = $request->request_user_id;
+            $booking['booking_driver_id']              = $post->user_id;
+            $booking['booking_driver_details']         = json_encode($driver_details);
+            $booking['booking_vehicle_id']             = $request->request_vehicle_id;
+            $booking['booking_process_id']             = $request->request_process_id;
+            $booking['booking_user_details']           = $request->request_user_details;
+            $booking['booking_total_amount']           = $request->request_total_amount;
+            $booking['booking_amount_details']         = json_encode($request->request_amout_details);
+            $booking['booking_pickup_latitude']        = $request->request_pickup_latitude;
+            $booking['booking_pickup_longitude']       = $request->request_pickup_longitude;
+            $booking['booking_pickup_city']            = $request->request_pickup_city;
+            $booking['booking_pickup_city_id']         = $request->request_pickup_city_id;
+            $booking['booking_pickup_state_id']        = $request->request_pickup_state_id;
+            $booking['booking_pickup_country_id']      = $request->request_pickup_country_id;
+            $booking['booking_pickup_address']         = $request->request_pickup_address;
+            $booking['booking_distance_value']         = $request->request_distance_value;
+            $booking['booking_distance_text']          = $request->request_distance_text;
+            $booking['booking_time_value']             = $request->request_time_value;
+            $booking['booking_time_text']              = $request->request_time_text;
+            $booking['booking_payments_status']        = $request->request_payments_status;
+            $booking['booking_payments_mode']          = $request->request_payments_mode;
+            $booking['booking_transaction_id']         = $request->request_transaction_id;
+            $booking['booking_booking_date']           = $request->request_booking_date;
+            $booking['booking_types']                  = $request->request_booking_type;
+            $booking['booking_status']                 = $booking_status['status'];
+            $booking['booking_display_status']         = $booking_status['display_status'];
+            $booking['booking_status_history']         = $booking_status['history'];
+            $booking['booking_otp']                    = otp_generate(4);
+            $booking['booking_request_id']              = $request->request_id;
             if($booking_id = $this->BookingModel->save($booking)){
-                
                 foreach($request->request_drop_locations as $key => $data){
                     $drop['drop_latitude'] = $data->drop_latitude;
                     $drop['drop_longitude'] = $data->drop_longitude;
@@ -372,7 +425,6 @@ class Package extends API_Controller {
                     $drop['drop_booking_id'] = $booking_id;
                     $this->BookingDropModel->save($drop);
                 }
-    
                 $result = $this->BookingModel->fetch_booking(array('booking_id'=>$booking_id));
                 $this->api_return(array('status' =>true,'message' => lang('request_accepted'),'data'=>$result),self::HTTP_OK);exit();
             }else{
@@ -393,7 +445,7 @@ class Package extends API_Controller {
        {	
            $this->_apiConfig([
                'methods' => ['POST'],
-               'key' => ['header',$this->config->item('api_fixe_header_key')],
+               //'key' => ['header',$this->config->item('api_fixe_header_key')],
            ]);
            $post = json_decode(file_get_contents('php://input'));
            if(empty($post->request_id) || !isset($post->request_id)){
@@ -408,13 +460,12 @@ class Package extends API_Controller {
            if(empty($post->booking_otp) || !isset($post->booking_otp)){
                $this->api_return(array('status' =>false,'message' => lang('error_otp_missing')),self::HTTP_BAD_REQUEST);exit();
            }
-           
            $request_id = $post->request_id;
-          
            $result = $this->BookingModel->fetch_booking(array('booking_request_id'=>$request_id));
            if(empty($result)){
                $this->api_return(array('status' =>false,'message' => lang('data_not_found')),self::HTTP_BAD_REQUEST);exit();
            }
+           
            if($result->booking_otp == $post->booking_otp){
                $booking_status = $this->BookingModel->booking_status('booking_started',$result->booking_id);
                
@@ -443,7 +494,6 @@ class Package extends API_Controller {
     * @method : complete()
     * @date : 2022-07-18
     * @about: This method use for complte booking
-    * 
     * */
     public function complete(){
         try
@@ -474,12 +524,12 @@ class Package extends API_Controller {
            $booking['booking_status'] = $booking_status['status'];
            $booking['booking_display_status'] = $booking_status['display_status'];
            $booking['booking_status_history'] = $booking_status['history'];
-           
            //booking total calculation with extra time and Other charge
            $booking_amount = $result->booking_total_amount;
            $coupon_amount  = $result->booking_coupon_amount;
+           $booking_vehicle_id = $result->booking_vehicle_id;
+           $booking_pickup_city_id = $result->booking_pickup_city_id;
            $discountable_amount = $booking_amount - $coupon_amount;
-         
            //total booking amount in search time 
    
            //get cuntry details 
@@ -487,63 +537,153 @@ class Package extends API_Controller {
            $courrency_code = currency_symbols(@$country->country_currency_symbols);
            //get cuntry details 
            
-           $amount_details = [
-               array(
-                   'label'=>'Trip Charge',
-                   'value'=>$courrency_code.(string)round($booking_amount),
-                   'is_customer_visible'=>true,
-                   'is_driver_visible'=>true
-               )
-           ];
-           //if apply discount this booking
-           if($coupon_amount > 0){
-               array_push(
-                   $amount_details,
-                   array(
-                       'label'=>'Trip Discount',
-                       'value'=>$courrency_code.(string)round($coupon_amount),
-                       'is_customer_visible'=>true,
-                       'is_driver_visible'=>false
-                   )
-               );
-           }
-           //tax apply this booking
-           if(count($taxes) > 0){
-               array_push(
-                   $amount_details,
-                   array(
-                       'label'=>'Befor Tax',
-                       'value'=>$courrency_code.(string)round($discountable_amount),
-                       'is_customer_visible'=>true,
-                       'is_driver_visible'=>true
-                   )
-               );
-           }
-           $calculate_tax = 0;
-           $taxes_amount  = 0;
-           foreach($taxes as $key => $data){
-               $calculate_tax = round($discountable_amount / 100 * $data->tax_rate);
-               $taxes_amount  += $calculate_tax;
-               array_push(
-                   $amount_details,
-                   array(
-                       'label'=>$data->tax_name,
-                       'value'=>$courrency_code.(string)round($calculate_tax),
-                       'is_customer_visible'=>true,
-                       'is_driver_visible'=>true
-                   )
-               );
-           }
+           /*=================================customer =================================*/
+	        $amount_details = [
+	        	array(
+	        		'label'=>'Trip Charge',
+	        		'value'=>$courrency_code.(string)round($booking_amount),
+	        		'is_customer_visible'=>true,
+	        		'is_driver_visible'=>false
+	        	)
+	        ];
+	        //if apply discount this booking
+	        if($coupon_amount > 0){
+	            array_push(
+	            	$amount_details,
+	            	array(
+	            		'label'=>'Trip Discount',
+	            		'value'=>$courrency_code.(string)round($coupon_amount),
+	            		'is_customer_visible'=>true,
+	            		'is_driver_visible'=>false
+	            	)
+	            );
+	        }
+	        //tax apply this booking
+	        if(count($taxes) > 0){
+	            array_push(
+	            	$amount_details,
+	            	array(
+	            		'label'=>'Befor Tax',
+	            		'value'=>$courrency_code.(string)round($discountable_amount),
+	            		'is_customer_visible'=>true,
+	            		'is_driver_visible'=>false
+	            	)
+	            );
+	        }
 
-           array_push(
-               $amount_details,
-               array(
-                   'label'=>'Subtotal',
-                   'value'=>$courrency_code.(string)round($discountable_amount + $taxes_amount),
-                   'is_customer_visible'=>true,
-                   'is_driver_visible'=>true
-               )
-           );
+	        $calculate_tax = 0;
+	        $taxes_amount  = 0;
+	        foreach($taxes as $key => $data){
+	            $calculate_tax = round($discountable_amount / 100 * $data->tax_rate);
+	            $taxes_amount  += $calculate_tax;
+	            array_push(
+	            	$amount_details,
+	            	array(
+	            		'label'=>$data->tax_name,
+	            		'value'=>"+".$courrency_code.(string)round($calculate_tax),
+	            		'is_customer_visible'=>true,
+	            		'is_driver_visible'=>false
+	            	)
+	            );
+	        }
+			$taxable_amount = round($discountable_amount + $taxes_amount);
+	        array_push(
+	        	$amount_details,
+	        	array(
+	        		'label'=>'Subtotal',
+	        		'value'=>$courrency_code.(string)$taxable_amount,
+	        		'is_customer_visible'=>true,
+	        		'is_driver_visible'=>false
+	        	)
+	        );
+			//TO DO late calculation
+			array_push(
+	        	$amount_details,
+	        	array(
+	        		'label'=>'Grand Total',
+	        		'value'=>$courrency_code.(string)$taxable_amount,
+	        		'is_customer_visible'=>true,
+	        		'is_driver_visible'=>false
+	        	)
+	        );
+			/*=================================customer end=================================*/
+			/*=================================driver start=================================*/
+			array_push(
+	        	$amount_details,
+	        	array(
+	        		'label'=>'Trip Charge',
+	        		'value'=>$courrency_code.(string)$taxable_amount,
+	        		'is_customer_visible'=>false,
+	        		'is_driver_visible'=>true
+	        	)
+	        );
+			$calculate_tax = 0;
+	        $taxes_amount  = 0;
+	        foreach($taxes as $key => $data){
+	            $calculate_tax = round($discountable_amount / 100 * $data->tax_rate);
+	            $taxes_amount  += $calculate_tax;
+	            array_push(
+	            	$amount_details,
+	            	array(
+	            		'label'=>$data->tax_name,
+	            		'value'=>"-".$courrency_code.(string)round($calculate_tax),
+	            		'is_customer_visible'=>false,
+	            		'is_driver_visible'=>true
+	            	)
+	            );
+	        }
+			//fetch service charge and service charge apply start
+			$fareCharge = $this->PackageModel->single(
+                '0',//distance
+	        	array(
+					"fare_vehicle_id"=>$booking_vehicle_id,
+					"fare_city_id"=>$booking_pickup_city_id
+				)
+			);
+			//service charge apply end
+			$service_charges = 0;
+			if($fareCharge->fare_commission > 0){
+				$service_charges = round($discountable_amount / 100 * $fareCharge->fare_commission);
+				array_push(
+					$amount_details,
+					array(
+						'label'=>'Fee',
+						'value'=>'-'.$courrency_code.$service_charges,
+						'is_customer_visible'=>false,
+						'is_driver_visible'=>true
+					)
+				);
+			}else{
+				array_push(
+					$amount_details,
+					array(
+						'label'=>'Fee',
+						'value'=>'-'.$courrency_code.$service_charges,
+						'is_customer_visible'=>false,
+						'is_driver_visible'=>true
+					)
+				);
+			}
+			$total_trip_ammount = round($discountable_amount) - $service_charges;
+			array_push(
+	        	$amount_details,
+	        	array(
+	        		'label'=>'Subtotal',
+	        		'value'=>$courrency_code.(string)round($total_trip_ammount),
+	        		'is_customer_visible'=>false,
+	        		'is_driver_visible'=>true
+	        	)
+	        );
+			array_push(
+	        	$amount_details,
+	        	array(
+	        		'label'=>'Grand Total',
+	        		'value'=>$courrency_code.(string)$total_trip_ammount,
+	        		'is_customer_visible'=>false,
+	        		'is_driver_visible'=>true
+	        	)
+	        );
+			/*=================================driver end=================================*/
        
            $booking['booking_amount_details'] = json_encode($amount_details);
            $booking['booking_tax_amount']     = $taxes_amount;
@@ -610,88 +750,163 @@ class Package extends API_Controller {
            $taxes  = $this->TaxesModel->fetch_taxes(array('tax_country_id'=>$result->booking_pickup_country_id))->result();
            $booking_amount = $result->booking_total_amount;
            $coupon_amount  = $result->booking_coupon_amount;
+           $booking_vehicle_id = $result->booking_vehicle_id;
+           $booking_pickup_city_id = $result->booking_pickup_city_id;
            $discountable_amount = $booking_amount - $coupon_amount;
-           
            //total booking amount in search time 
 
            //get cuntry details 
            $country = $this->CountryModel->_fetch_single(array('country_id'=>$result->booking_pickup_country_id));
-           $currency_symbols = currency_symbols(@$country->country_currency_symbols);
+           $courrency_code = currency_symbols(@$country->country_currency_symbols);
            //get cuntry details 
 
-           $amount_details = [
-               array(
-                   'label'=>'Trip Charge',
-                   'value'=>$currency_symbols.(string)round($booking_amount),
-                   'is_customer_visible'=>true,
-                   'is_driver_visible'=>true
-               )
-           ];
-           //if apply discount this booking
-           if($coupon_amount > 0){
-               array_push($amount_details,
-                   array(
-                       'label'=>'Trip Discount',
-                       'value'=>$currency_symbols.(string)round($coupon_amount),
-                       'is_customer_visible'=>true,
-                       'is_driver_visible'=>false
-                   )
-               );
-           }
-           //tax apply this booking
-           if(count($taxes) > 0){
-               array_push($amount_details,
-                   array(
-                       'label'=>'Befor Tax',
-                       'value'=>$currency_symbols.(string)round($discountable_amount),
-                       'is_customer_visible'=>true,
-                       'is_driver_visible'=>true
-                   )
-               );
-           }
-           $calculate_tax = 0;
-           $taxes_amount  = 0;
-           foreach($taxes as $key => $data){
-               $calculate_tax = round($discountable_amount / 100 * $data->tax_rate);
-               $taxes_amount  += $calculate_tax;
-               array_push($amount_details,
-                   array(
-                       'label'=>$data->tax_name,
-                       'value'=>$currency_symbols.(string)round($calculate_tax),
-                       'is_customer_visible'=>true,
-                       'is_driver_visible'=>true
-                   )
-               );
-           }
-           
-           if($post->cancelled_by == 'driver'){
-               array_push($amount_details,
-                   array(
-                       'label'=>'Cancel Charge',
-                       'value'=>$currency_symbols.'0',
-                       'is_customer_visible'=>false,
-                       'is_driver_visible'=>true
-                   )
-               );
-           }else{
-               array_push($amount_details,
-                   array(
-                       'label'=>'Cancel Charge',
-                       'value'=>$currency_symbols.'0',
-                       'is_customer_visible'=>true,
-                       'is_driver_visible'=>false
-                   )
-               );
-           }
-           
-           array_push($amount_details,
-               array(
-                   'label'=>'Subtotal',
-                   'value'=>$currency_symbols.(string)round($discountable_amount + $taxes_amount),
-                   'is_customer_visible'=>true,
-                   'is_driver_visible'=>true
-               )
-           );
+            /*=================================customer =================================*/
+	        $amount_details = [
+	        	array(
+	        		'label'=>'Trip Charge',
+	        		'value'=>$courrency_code.(string)round($booking_amount),
+	        		'is_customer_visible'=>true,
+	        		'is_driver_visible'=>false
+	        	)
+	        ];
+	        //if apply discount this booking
+	        if($coupon_amount > 0){
+	            array_push(
+	            	$amount_details,
+	            	array(
+	            		'label'=>'Trip Discount',
+	            		'value'=>$courrency_code.(string)round($coupon_amount),
+	            		'is_customer_visible'=>true,
+	            		'is_driver_visible'=>false
+	            	)
+	            );
+	        }
+	        //tax apply this booking
+	        if(count($taxes) > 0){
+	            array_push(
+	            	$amount_details,
+	            	array(
+	            		'label'=>'Befor Tax',
+	            		'value'=>$courrency_code.(string)round($discountable_amount),
+	            		'is_customer_visible'=>true,
+	            		'is_driver_visible'=>false
+	            	)
+	            );
+	        }
+
+	        $calculate_tax = 0;
+	        $taxes_amount  = 0;
+	        foreach($taxes as $key => $data){
+	            $calculate_tax = round($discountable_amount / 100 * $data->tax_rate);
+	            $taxes_amount  += $calculate_tax;
+	            array_push(
+	            	$amount_details,
+	            	array(
+	            		'label'=>$data->tax_name,
+	            		'value'=>"+".$courrency_code.(string)round($calculate_tax),
+	            		'is_customer_visible'=>true,
+	            		'is_driver_visible'=>false
+	            	)
+	            );
+	        }
+			$taxable_amount = round($discountable_amount + $taxes_amount);
+	        array_push(
+	        	$amount_details,
+	        	array(
+	        		'label'=>'Subtotal',
+	        		'value'=>$courrency_code.(string)$taxable_amount,
+	        		'is_customer_visible'=>true,
+	        		'is_driver_visible'=>false
+	        	)
+	        );
+			//TO DO late calculation
+			array_push(
+	        	$amount_details,
+	        	array(
+	        		'label'=>'Grand Total',
+	        		'value'=>$courrency_code.(string)$taxable_amount,
+	        		'is_customer_visible'=>true,
+	        		'is_driver_visible'=>false
+	        	)
+	        );
+			/*=================================customer end=================================*/
+			/*=================================driver start=================================*/
+			array_push(
+	        	$amount_details,
+	        	array(
+	        		'label'=>'Trip Charge',
+	        		'value'=>$courrency_code.(string)$taxable_amount,
+	        		'is_customer_visible'=>false,
+	        		'is_driver_visible'=>true
+	        	)
+	        );
+			$calculate_tax = 0;
+	        $taxes_amount  = 0;
+	        foreach($taxes as $key => $data){
+	            $calculate_tax = round($discountable_amount / 100 * $data->tax_rate);
+	            $taxes_amount  += $calculate_tax;
+	            array_push(
+	            	$amount_details,
+	            	array(
+	            		'label'=>$data->tax_name,
+	            		'value'=>"-".$courrency_code.(string)round($calculate_tax),
+	            		'is_customer_visible'=>false,
+	            		'is_driver_visible'=>true
+	            	)
+	            );
+	        }
+			//fetch service charge and service charge apply start
+			$fareCharge = $this->PackageModel->single(
+                '0',//distance
+	        	array(
+					"fare_vehicle_id"=>$booking_vehicle_id,
+					"fare_city_id"=>$booking_pickup_city_id
+				)
+			);
+			//service charge apply end
+			$service_charges = 0;
+			if($fareCharge->fare_commission > 0){
+				$service_charges = round($discountable_amount / 100 * $fareCharge->fare_commission);
+				array_push(
+					$amount_details,
+					array(
+						'label'=>'Fee',
+						'value'=>'-'.$courrency_code.$service_charges,
+						'is_customer_visible'=>false,
+						'is_driver_visible'=>true
+					)
+				);
+			}else{
+				array_push(
+					$amount_details,
+					array(
+						'label'=>'Fee',
+						'value'=>'-'.$courrency_code.$service_charges,
+						'is_customer_visible'=>false,
+						'is_driver_visible'=>true
+					)
+				);
+			}
+			$total_trip_ammount = round($discountable_amount) - $service_charges;
+			array_push(
+	        	$amount_details,
+	        	array(
+	        		'label'=>'Subtotal',
+	        		'value'=>$courrency_code.(string)round($total_trip_ammount),
+	        		'is_customer_visible'=>false,
+	        		'is_driver_visible'=>true
+	        	)
+	        );
+			array_push(
+	        	$amount_details,
+	        	array(
+	        		'label'=>'Grand Total',
+	        		'value'=>$courrency_code.(string)$total_trip_ammount,
+	        		'is_customer_visible'=>false,
+	        		'is_driver_visible'=>true
+	        	)
+	        );
+			/*=================================driver end=================================*/
            
            $booking['booking_amount_details'] = json_encode($amount_details);
            $booking['booking_tax_amount']     = $taxes_amount;

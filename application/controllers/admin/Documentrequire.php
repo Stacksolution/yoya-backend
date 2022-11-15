@@ -61,6 +61,7 @@ class Documentrequire extends MY_AdminController {
 			$data['document_placeholder']            = $this->input->post('document_placeholder');
             $data['document_description']         = $this->input->post('document_description');
 			$data['document_minimum_char']         = $this->input->post('document_minimum_char');
+			$data['document_maximum_char']         = $this->input->post('document_maximum_char');
 			$data['document_country_id']         = $this->input->post('country_id');
 			if($this->DocumentsModel->save($data)){
 				$this->session->set_flashdata('success','Vahicle Fare successfully created !');
@@ -79,10 +80,11 @@ class Documentrequire extends MY_AdminController {
 		$this->rules();
 		if ($this->form_validation->run() == TRUE){
 		 	$data['document_country_id']         = $this->input->post('country_id');
-			$data['document_label']           = $this->input->post('document_label');
+			$data['document_label']           	 = $this->input->post('document_label');
 			$data['document_placeholder']            = $this->input->post('document_placeholder');
             $data['document_description']         = $this->input->post('document_description');
 			$data['document_minimum_char']         = $this->input->post('document_minimum_char');
+			$data['document_maximum_char']         = $this->input->post('document_maximum_char');
 			$data['document_country_id']         = $this->input->post('country_id');
 			$this->DocumentsModel->update(array('document_id'=>$document_id),$data);
 			$this->session->set_flashdata('success','vehiclefare details successfully updated !');

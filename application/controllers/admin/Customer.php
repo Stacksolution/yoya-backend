@@ -88,10 +88,12 @@ class Customer extends MY_AdminController {
         $this->data['wallets'] = $this->WalletModel->fetch_all_where(array('wallet_user_id'=>$customer_id));
         $this->data['requests'] = $this->RecentsearchModel->fetch_all_order_request_where(array('request_user_id'=>$customer_id));
 
-        $this->data['bookingcount'] = 0;
-        $this->data['schedulecount'] = 0;
-        $this->data['bookingcount'] = 0;
-
+        $this->data['completeBookings']= $this->CustomerModel->booking_counts($customer_id,['booking_completed']);
+		$this->data['cancelBookings']  = $this->CustomerModel->booking_counts(['booking_cancel_by_driver','booking_cancel_by_customer','booking_cancel_by_admin']);
+		$this->data['ongoingBookings'] = $this->CustomerModel->booking_counts(['booking_accepted','booking_started','booking_reached']);
+		$this->data['walletsBlance']   = $this->WalletModel->balance(['wallet_user_id'=>$customer_id]);
+		$this->data['serviceCharge']   = $this->WalletModel->service_charge(['wallet_user_id'=>$customer_id,'wallet_uses'=>'applied_service_charge']);
+    
         $this->load->view('back-end/customer/dashboard', $this->data);
     }
 }

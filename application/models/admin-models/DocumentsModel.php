@@ -43,7 +43,8 @@ class DocumentsModel extends CI_Model {
 		  return;
 		}
 	}
-	public function single(){
+	
+	public function single($where){
 		try {
 			$this->db->select('*');
 			$this->db->from($this->db->dbprefix('required_documents'));

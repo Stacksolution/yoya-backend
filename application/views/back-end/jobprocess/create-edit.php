@@ -37,7 +37,7 @@
                   </div>
                   <?= form_open() ?>
                   <div class="row">
-                     <div class="col-md-6">
+                     <div class="col-md-4">
                         <label>Job process Name</label>
                         <div class="input-group" id="Jobprocess">
                            <input type="text" class="form-control" placeholder="Job process name" name="job_process_name" value="<?= set_value('job_process_name',$process_data->job_process_name) ?>">
@@ -45,7 +45,7 @@
                         </div>
                         <?= form_error('job_process_name', '<div class="error">', '</div>'); ?>
                      </div>
-                     <div class="col-md-6">
+                     <div class="col-md-4">
                         <label>Job process icon</label>
                         <div class="input-group" id="sale">
                            <div class="input-group" data-toggle="aizuploader" data-type="image">
@@ -58,6 +58,15 @@
                            <div class="file-preview box sm">
                            </div>
                         </div>
+                     </div>
+                     <div class="col-md-4">
+                        <label>Job process Screen</label>
+                        <div class="input-group" id="name">
+                           <?php $process = array(''=>'--Select Application Screen--','cab'=>'Cab','outstation'=>'Outstations','rental'=>'Rental','package'=>'Package','transport'=>'Transport',); ?>
+                           <?= form_dropdown('job_process_screen',$process,set_value('job_process_screen',$process_data->job_process_screen),'class="form-control" id="job_process_screen"') ?>
+                        </div>
+                        <small><span class="text-danger">Note:</span> This screen use for mobile appliction only !</small>
+                        <?= form_error('job_process_screen', '<div class="error">', '</div>'); ?>
                      </div>
                   </div>
                   <div class="row mt-4">

@@ -5,6 +5,9 @@ class Jobprocessvehicle extends MY_AdminController {
     public function __construct() {
         parent::__construct();
         is_logged_out(); // if user is logout Or session is expired then redirect login
+        
+        $this->data['process'] = $this->JobprocessModel->_dropdownslist();
+        $this->data['vehicle'] = $this->VehicleTypeModel->_dropdownlist();
     }
     /**
      * @method : index()
@@ -15,10 +18,8 @@ class Jobprocessvehicle extends MY_AdminController {
      */
     public function index() {
         $this->data['jobprocess'] = $this->JobprocessVehicleModel->fetch_all();
-        // print'<pre>';
-        // print_r($this->data['jobprocess']->result());exit;
         $this->data['meta'] = array('meta_title' => 'Jobprocess Manage', 'meta_description' => '');
-        $this->load->view('back-end/Jobprocessvehicle/index-page', $this->data);
+        $this->load->view('back-end/jobprocessvehicle/index-page', $this->data);
     }
     /**
      * @method : create()
@@ -41,8 +42,6 @@ class Jobprocessvehicle extends MY_AdminController {
         }
 
         $this->data['meta'] = array('meta_title' => 'Jobprocess Create', 'meta_description' => '');
-        $this->data['vehicle'] = $this->VehicleTypeModel->_dropdownslist();
-        $this->data['process'] = $this->JobprocessModel->_dropdownslist();
         $this->load->view('back-end/jobprocessvehicle/create-page', $this->data);
     }
     /**
@@ -68,8 +67,6 @@ class Jobprocessvehicle extends MY_AdminController {
                 redirect('admin/jobprocessvehicle/create');
             }
         }
-        $this->data['vehicle'] = $this->VehicleTypeModel->_dropdownslist();
-        $this->data['process'] = $this->JobprocessModel->_dropdownslist();
         $this->load->view('back-end/jobprocessvehicle/create-edit', $this->data);
     }
     /**

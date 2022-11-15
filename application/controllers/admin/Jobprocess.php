@@ -6,12 +6,24 @@ class Jobprocess extends MY_AdminController {
         is_logged_out(); // if user is logout Or session is expired then redirect login
         
     }
+    public function rules() {
+        $config = array(
+        	array(
+        		'field' => 'job_process_name',
+        		'label' => 'Process Name',
+        		'rules' => 'required'
+        	), array(
+        		'field' => 'job_process_screen', 
+        		'label' => 'Process Screen', 
+        		'rules' => 'required'
+        	),
+        );
+        $this->form_validation->set_rules($config);
+    }
     /**
      * @method : index()
      * @date : 2022-06-21
      * @about: This method use for records all Jobprocess
-     *
-     *
      */
     public function index() {
         $this->data['jobprocess'] = $this->JobprocessModel->fetch_all_jobprocess();
@@ -24,10 +36,11 @@ class Jobprocess extends MY_AdminController {
      * @about: This method use for create Jobprocess
      */
     public function create() {
-        $this->form_validation->set_rules('job_process_name', 'Job Process Name', 'required');
+        $this->rules();
         if ($this->form_validation->run() == TRUE) {
-            $data['job_process_name'] = $this->input->post('job_process_name');
-            $data['job_process_icon'] = $this->input->post('icon');
+            $data['job_process_name']   = $this->input->post('job_process_name');
+            $data['job_process_screen'] = $this->input->post('job_process_screen');
+            $data['job_process_icon']   = $this->input->post('icon');
             $data['job_process_create_at'] = date('Y-m-d H:i:s');
             if ($this->JobprocessModel->save($data)) {
                 $this->session->set_flashdata('success', 'Jobprocess successfully created !');
@@ -51,11 +64,12 @@ class Jobprocess extends MY_AdminController {
         $this->data['meta'] = array('meta_title' => 'Jobprocess update', 'meta_description' => '');
         $job_process_id = $this->uri->segment(4);
         $this->data['process_data'] = $this->JobprocessModel->fetch_jobprocess_by_id($job_process_id);
-        $this->form_validation->set_rules('job_process_name', 'Job Process Name', 'required');
+        $this->rules();
         if ($this->form_validation->run() == TRUE) {
             $data['job_process_name'] = $this->input->post('job_process_name');
             $data['job_process_icon'] = $this->input->post('icon');
             $data['job_process_update_at'] = date('Y-m-d H:i:s');
+            $data['job_process_screen'] = $this->input->post('job_process_screen');
             $this->JobprocessModel->update(array('job_process_id' => $job_process_id), $data);
             $this->session->set_flashdata('success', 'job process  details successfully updated !');
             redirect('admin/jobprocess');

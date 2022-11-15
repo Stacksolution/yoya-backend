@@ -42,7 +42,7 @@
                   <div class="row">
                      <div class="col-sm-4">
                         <div class="avatar-md profile-user-wid mb-4">
-                           <img src="<?= base_url('back-end') ?>/images/users/avatar-1.jpg" alt="" class="img-thumbnail rounded-circle">
+                           <img src="<?= uploads_image($drivers->user_image); ?>" alt="" class="img-thumbnail rounded-circle avatar-md">
                         </div>
                         <h5 class="font-size-15 text-truncate"><?= $drivers->user_name ?></h5>
                         <p class="text-muted mb-0 text-truncate"><?= $drivers->user_type ?></p>
@@ -186,7 +186,7 @@
                <div class="tab-content p-3 text-muted">
                   <div class="tab-pane active" id="wallet" role="tabpanel">
                      <div class="col-12">
-                        <table id="datatable-buttons" class="table table-bordered dt-responsive nowrap w-100">
+                        <table class="table table-bordered dt-responsive nowrap w-100 datatable">
                            <thead>
                               <tr>
                                  <th class="align-middle">Sr.</th>
@@ -206,9 +206,9 @@
                                  <td><?= $data->wallet_transaction_id ?></td>
                                  <td>
                                     <?php if($data->wallet_transaction_type == '1'){ ?> 
-                                       <span class="badge text-success">Credit</span>
+                                       <span class="badge badge-pill badge-soft-success font-size-11">CR</span>
                                     <?php }else{ ?>
-                                       <span class="badge text-danger">Debit</span>
+                                       <span class="badge badge-pill badge-soft-danger font-size-11">DR</span>
                                     <?php } ?>
                                     </td>
                                  <td><?= dateFormat($data->wallet_create_at) ?></td>
@@ -220,7 +220,7 @@
                   </div>
                   <div class="tab-pane" id="booking" role="tabpanel">
                      <div class="col-12">
-                        <table id="datatable-button" class="table table-bordered dt-responsive nowrap w-100">
+                        <table class="table table-bordered dt-responsive nowrap w-100 datatable">
                            <thead>
                               <tr>
                                  <th class="align-middle">Sr.</th>
@@ -261,7 +261,9 @@
    </div>
 </div>
 <?php include(__DIR__.'/../common/_footer.php'); ?>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="<?= base_url('back-end/libs/datatables.net/js/jquery.dataTables.min.js') ?>"></script>
+<script src="<?= base_url('back-end/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') ?>"></script>
+<script src="<?= base_url('back-end/js/pages/datatables.init.js') ?>"></script>
 <script>
    $(document).ready(function(){
       $('a[data-bs-toggle="tab"]').click(function (e) {

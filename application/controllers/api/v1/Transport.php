@@ -214,7 +214,6 @@ class Transport extends API_Controller {
 			$country_id  = $result->country->country_id;
 			$total_amount = $result->fare_total_amount_value;
 			//amount details manipulation
-			$country_id = 
 			$courrency_code = currency_symbols(@$result->country->country_currency_symbols);
 			$amount_details = [
 	        	array(

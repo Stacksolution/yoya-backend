@@ -68,6 +68,7 @@ class VehicleModel extends CI_Model {
 			}else{
 	            $fare_total_amount = $total_distance * $data->fare_base_price;
 	        }
+			$result->result()[$key]->fare_total_amount_value = $fare_total_amount;
 			$result->result()[$key]->fare_total_amount = currency_symbols(@$data->country->country_currency_symbols).$fare_total_amount;
 		}
 		return $result;

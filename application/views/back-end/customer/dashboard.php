@@ -5,11 +5,11 @@
       <div class="row">
          <div class="col-12">
             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-               <h4 class="mb-sm-0 font-size-18"><?= $customer->user_name ?> Dashboard</h4>
+               <h4 class="mb-sm-0 font-size-18"><?= $customer->user_name ?> Profile</h4>
                <div class="page-title-right">
                   <ol class="breadcrumb m-0">
                      <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                     <li class="breadcrumb-item active"><?= $customer->user_name ?> Dashboard</li>
+                     <li class="breadcrumb-item active"><?= $customer->user_name ?> Profile</li>
                   </ol>
                </div>
             </div>
@@ -52,8 +52,8 @@
                      <div class="card-body">
                         <div class="d-flex">
                            <div class="flex-grow-1">
-                              <p class="text-muted fw-medium">Bookings</p>
-                              <h5 class="mb-0">1,235</h5>
+                              <p class="text-muted fw-medium">Complete Ride</p>
+                              <h5 class="mb-0"><?= number_format($completeBookings) ?></h5>
                            </div>
                            <div class="mini-stat-icon avatar-sm rounded-circle bg-primary align-self-center">
                               <span class="avatar-title">
@@ -69,12 +69,12 @@
                      <div class="card-body">
                         <div class="d-flex">
                            <div class="flex-grow-1">
-                              <p class="text-muted fw-medium">Shecduled</p>
-                              <h5 class="mb-0">$35, 723</h5>
+                              <p class="text-muted fw-medium">Cancel Ride</p>
+                              <h5 class="mb-0"><?= number_format($cancelBookings) ?></h5>
                            </div>
                            <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
                               <span class="avatar-title rounded-circle bg-primary">
-                              <i class="fas fa-clock font-size-24"></i>
+                              <i class="bx bx-car font-size-24"></i>
                               </span>
                            </div>
                         </div>
@@ -86,12 +86,12 @@
                      <div class="card-body">
                         <div class="d-flex">
                            <div class="flex-grow-1">
-                              <p class="text-muted fw-medium">Completed</p>
-                              <h5 class="mb-0">$16.2</h5>
+                              <p class="text-muted fw-medium">Ongoing Ride</p>
+                              <h5 class="mb-0"><?= number_format($ongoingBookings) ?></h5>
                            </div>
                            <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
                               <span class="avatar-title rounded-circle bg-primary">
-                              <i class="bx bx-check-double font-size-24"></i>
+                              <i class="bx bx-car font-size-24"></i>
                               </span>
                            </div>
                         </div>
@@ -103,12 +103,12 @@
                      <div class="card-body">
                         <div class="d-flex">
                            <div class="flex-grow-1">
-                              <p class="text-muted fw-medium">Cancelled</p>
-                              <h5 class="mb-0">1,235</h5>
+                              <p class="text-muted fw-medium">Payout</p>
+                              <h5 class="mb-0">0</h5>
                            </div>
                            <div class="mini-stat-icon avatar-sm rounded-circle bg-primary align-self-center">
                               <span class="avatar-title">
-                              <i class="fas fa-ban font-size-24"></i>
+                              <i class="bx bx-copy-alt font-size-24"></i>
                               </span>
                            </div>
                         </div>
@@ -120,8 +120,8 @@
                      <div class="card-body">
                         <div class="d-flex">
                            <div class="flex-grow-1">
-                              <p class="text-muted fw-medium">Wallets</p>
-                              <h5 class="mb-0">$35, 723</h5>
+                              <p class="text-muted fw-medium"><?= $config['web_appname'] ?> charges</p>
+                              <h5 class="mb-0"><?= number_format($serviceCharge) ?></h5>
                            </div>
                            <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
                               <span class="avatar-title rounded-circle bg-primary">
@@ -137,12 +137,12 @@
                      <div class="card-body">
                         <div class="d-flex">
                            <div class="flex-grow-1">
-                              <p class="text-muted fw-medium">Average Price</p>
-                              <h5 class="mb-0">$16.2</h5>
+                              <p class="text-muted fw-medium">Wallet balance</p>
+                              <h5 class="mb-0"><?= number_format($walletsBlance) ?></h5>
                            </div>
                            <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
                               <span class="avatar-title rounded-circle bg-primary">
-                              <i class="bx bx-purchase-tag-alt font-size-24"></i>
+                              <i class="bx bx-wallet font-size-24"></i>
                               </span>
                            </div>
                         </div>
@@ -289,3 +289,21 @@
 <script src="<?= base_url('back-end/libs/datatables.net/js/jquery.dataTables.min.js') ?>"></script>
 <script src="<?= base_url('back-end/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') ?>"></script>
 <script src="<?= base_url('back-end/js/pages/datatables.init.js') ?>"></script>
+<script>
+   $(document).ready(function(){
+      $('a[data-bs-toggle="tab"]').click(function (e) {
+         e.preventDefault();
+         $(this).tab('show');
+      });
+
+      $('a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
+         var id = $(e.target).attr("href");
+         localStorage.setItem('selectedTab', id)
+      });
+
+      var selectedTab = localStorage.getItem('selectedTab');
+      if (selectedTab != null) {
+         $('a[data-bs-toggle="tab"][href="' + selectedTab + '"]').tab('show');
+      }
+   });
+</script>
