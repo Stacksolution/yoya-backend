@@ -1,9 +1,5 @@
 <?php include(__DIR__.'/../common/_header.php'); ?>
 <?php include(__DIR__.'/../common/_sidebar.php'); ?>
-<!-- page wise css -->
-<link href="<?= base_url('back-end') ?>/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css">
-<link rel="stylesheet" href="<?= base_url('back-end') ?>/libs/%40chenfengyuan/datepicker/datepicker.min.css">
-<!-- page wise css -->
 <div class="page-content">
    <div class="container-fluid">
       <div class="row">
@@ -43,8 +39,9 @@
                         <thead class="table-light">
                            <tr>
                               <th class="align-middle">Sr.</th>
-                              <th class="align-middle">Country Name</th>
-                              <th class="align-middle">State  Name</th>
+                              <th class="align-middle">Country</th>
+                              <th class="align-middle">State</th>
+                              <th class="align-middle">Status</th>
                               <th class="align-middle">Action</th>
                            </tr>
                         </thead>
@@ -54,6 +51,11 @@
                               <td><a href="javascript: void(0);" class="text-body fw-bold">#<?= $key + 1 ?></a> </td>
                               <td><?= $data->country_name ?></td>
                               <td><?= $data->state_name ?></td>
+                              <td>
+                                 <div class="d-flex gap-3">
+                                    <input type="checkbox" class="status-update" data-id="<?= $data->state_id ?>"  <?= $data->state_status =="1" ? "checked" : "" ?> id="pages<?= $key + 1 ?>" switch="success"/>
+                                    <label for="pages<?= $key + 1 ?>" data-on-label="on" data-off-label="off"></label></div>
+                              </td>
                               <td>
                                  <div class="d-flex gap-3">
                                     <a href="<?= site_url('admin/states/edit/'.$data->state_id) ?>" class="btn btn-outline-secondary btn-sm"><i class="mdi mdi-pencil font-size-13"></i></a>
@@ -69,9 +71,7 @@
          </div>
       </div>
    </div>
-   <!-- container-fluid -->
 </div>
-
 <!-- End Page-content -->
 <?php include(__DIR__.'/../common/_footer.php'); ?>
 <script src="<?= base_url('back-end/libs/datatables.net/js/jquery.dataTables.min.js') ?>"></script>
@@ -91,4 +91,24 @@
 <script src="<?= base_url('back-end') ?>/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
 <!-- form advanced init -->
 <script src="<?= base_url('back-end') ?>/js/pages/form-advanced.init.js"></script>
+<script type="text/javascript">
+   /*for currency active*/
+   $(document).on('change','.status-update',function(){
+      var _this = $(this),_data_id,_data_status;
+      _data_id = _this.data('id');
+      _data_status = '0';
+      if (_this.prop('checked') == true){ 
+         _data_status = '1';
+      }
+      $.ajax({
+        method: "POST",
+        url: "<?= base_url('admin/states/status') ?>",
+        data: { state_id: _data_id, status: _data_status }
+      }).done(function(response) {
+         console.log(response);
+      }).fail(function(errors){
+         console.log(errors);
+      });
+   })
+</script>
 

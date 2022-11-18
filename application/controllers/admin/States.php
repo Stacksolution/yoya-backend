@@ -86,8 +86,6 @@ class States extends MY_AdminController {
      * @method : getState()
      * @date : 2022-09-25
      * @about: This method use for fetch state by ajax country 
-     *
-     *
      */
     // get state names
     function getState() {
@@ -97,4 +95,14 @@ class States extends MY_AdminController {
         header('Content-Type: application/json');
         echo json_encode($json);
     }
+
+    /**
+     * @method : status()
+     * @date : 2022-06-25
+     * @about: This method use for status updated
+     */
+    public function status(){
+	    $status['state_status']    = $this->input->post('status');
+        $this->StateModel->update(array('state_id' => $this->input->post('state_id')), $status);
+	}
 }

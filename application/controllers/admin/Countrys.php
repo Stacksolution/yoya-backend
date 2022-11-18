@@ -89,4 +89,13 @@ class Countrys extends MY_AdminController {
         }
         $this->load->view('back-end/countrys/create-edit', $this->data);
     }
+    /**
+     * @method : status()
+     * @date : 2022-06-25
+     * @about: This method use for status updated
+     */
+    public function status(){
+	    $status['country_status']    = $this->input->post('status');
+        $this->CountrysModel->update(array('country_id' => $this->input->post('country_id')), $status);
+	}
 }

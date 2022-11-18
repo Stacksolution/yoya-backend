@@ -112,4 +112,13 @@ class Citys extends MY_AdminController {
         header('Content-Type: application/json');
         echo json_encode($json);
     }
+	/**
+     * @method : status()
+     * @date : 2022-06-25
+     * @about: This method use for status updated
+     */
+    public function status(){
+	    $status['city_status']    = $this->input->post('status');
+        $this->CitysModel->update(array('city_id' => $this->input->post('city_id')), $status);
+	}
 }

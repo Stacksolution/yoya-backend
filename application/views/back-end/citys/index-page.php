@@ -40,9 +40,10 @@
                            <tr>
                               <th class="align-middle">Sr.</th>
                               <th class="align-middle">Icon</th>
-                              <th class="align-middle">Country Name</th>
-                              <th class="align-middle">State  Name</th>
-                              <th class="align-middle">City  Name</th>
+                              <th class="align-middle">Country</th>
+                              <th class="align-middle">State</th>
+                              <th class="align-middle">City</th>
+                              <th class="align-middle">Status</th>
                               <th class="align-middle">Action</th>
                            </tr>
                         </thead>
@@ -58,6 +59,11 @@
                               <td><?= $data->country_name ?></td>
                               <td><?= $data->state_name ?></td>
                               <td><?= $data->city_name ?></td>
+                              <td>
+                                 <div class="d-flex gap-3">
+                                    <input type="checkbox" class="status-update" data-id="<?= $data->city_id ?>"  <?= $data->city_status =="1" ? "checked" : "" ?> id="pages<?= $key + 1 ?>" switch="success"/>
+                                    <label for="pages<?= $key + 1 ?>" data-on-label="on" data-off-label="off"></label></div>
+                              </td>
                               <td>
                                  <div class="d-flex gap-1">
                                     <a href="<?= site_url('admin/citys/edit/'.$data->city_id) ?>" class="btn btn-outline-secondary btn-sm"><i class="mdi mdi-pencil font-size-13"></i></a>
@@ -91,4 +97,24 @@
 <script src="<?= base_url('back-end/libs/datatables.net-buttons/js/buttons.colVis.min.js') ?>"></script>
 <!-- Datatable init js -->
 <script src="<?= base_url('back-end/js/pages/datatables.init.js') ?>"></script>
+<script type="text/javascript">
+   /*for currency active*/
+   $(document).on('change','.status-update',function(){
+      var _this = $(this),_data_id,_data_status;
+      _data_id = _this.data('id');
+      _data_status = '0';
+      if (_this.prop('checked') == true){ 
+         _data_status = '1';
+      }
+      $.ajax({
+        method: "POST",
+        url: "<?= base_url('admin/citys/status') ?>",
+        data: { city_id: _data_id, status: _data_status }
+      }).done(function(response) {
+         console.log(response);
+      }).fail(function(errors){
+         console.log(errors);
+      });
+   })
+</script>
 
