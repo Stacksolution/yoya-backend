@@ -15,20 +15,25 @@ class Document extends API_Controller {
 	            'key' => ['header',$this->config->item('api_fixe_header_key')],
 	        ]);
     		$post = json_decode(file_get_contents('php://input'));
+			
     		if(empty($post->document_id) || !isset($post->document_id)){
 		        $this->api_return(array('status' =>false,'message' => lang('error_document_id')),self::HTTP_BAD_REQUEST);exit();
 	        }
 	        $required_document = $this->RequiredDocumentModel->fetch_single(array('document_id'=>$post->document_id));
-
+			
 	        if(empty($required_document)){
 	        	$this->api_return(array('status' =>false,'message' => lang('error_document_id')),self::HTTP_BAD_REQUEST);exit();
 	        }
 	        if(empty($post->user_id) || !isset($post->user_id)){
 		        $this->api_return(array('status' =>false,'message' =>lang('error_user_id_missing')),self::HTTP_BAD_REQUEST);exit();
 	        }
-	        if(empty($post->id_number) || !isset($post->id_number) || strlen($post->id_number) != $required_document->document_minimum_char){
+	        if(empty($post->id_number) || !isset($post->id_number)){
 		        $this->api_return(array('status' =>false,'message' => lang('error_id_number_missing')),self::HTTP_BAD_REQUEST);exit();
 	        }
+
+			if(strlen($post->id_number) < $required_document->document_minimum_char || strlen($post->id_number) > $required_document->document_maximum_char){
+				$this->api_return(array('status' =>false,'message' => "Document number should be min $required_document->document_minimum_char and max $required_document->document_maximum_char characters only !"),self::HTTP_BAD_REQUEST);exit();
+			}
 
 	        //if enable upload image then upload front image 
 	        if($required_document->document_front_image == 1){
@@ -84,12 +89,12 @@ class Document extends API_Controller {
 	            $document = $this->DocumentModel->fetch_document(array('doc_user_id'=>$post->user_id,'doc_document_id'=>$post->document_id));
 	            if(!empty($document)){
 	                if(!empty($document->doc_front_original)){
-	                   //unlink(ltrim($document->doc_front_original, '/'));
+	                   unlink(ltrim($document->doc_front_original, '/'));
 	                   //unlink('.'.$document->doc_front_original);
 	                }
 	                if(!empty($document->doc_back_original)){
 	                    //unlink('.'.$document->doc_back_original);
-	                   //unlink(ltrim($document->doc_back_original, '/'));
+	                   unlink(ltrim($document->doc_back_original, '/'));
 	                }
 	            }
 	            $this->DocumentModel->update(array('doc_user_id'=>$post->user_id,'doc_document_id'=>$post->document_id),$upload_doc);

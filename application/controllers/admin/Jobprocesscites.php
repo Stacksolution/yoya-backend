@@ -25,7 +25,7 @@ class Jobprocesscites extends MY_AdminController {
      */
     public function create() {
         $this->form_validation->set_rules('process_id', 'Job Process', 'required');
-        $this->form_validation->set_rules('cities_id', 'City Name', 'required|is_unique['.$this->db->dbprefix('job_process_cities').'.cities_id]');
+       // $this->form_validation->set_rules('cities_id', 'City Name', 'required|is_unique['.$this->db->dbprefix('job_process_cities').'.cities_id]');
         if ($this->form_validation->run() == TRUE) {
             $data['job_process_id'] = $this->input->post('process_id');
             $data['cities_id'] = $this->input->post('cities_id');

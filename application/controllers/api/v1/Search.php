@@ -13,7 +13,7 @@ class Search extends API_Controller {
     	{
     		$this->_apiConfig([
 	            'methods' => ['POST'],
-	            //'key' => ['header',$this->config->item('api_fixe_header_key')],
+	            'key' => ['header',$this->config->item('api_fixe_header_key')],
 	        ]);
 	        $post = json_decode(file_get_contents('php://input'));
     		if(empty($post->user_id) || !isset($post->user_id)){
