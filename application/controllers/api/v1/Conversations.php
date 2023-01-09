@@ -93,19 +93,10 @@ class Conversations extends API_Controller {
 	        }
 
 	        $rooms_users = $this->ConversationsModel->fetch_room_users(array('room_name'=>'request-room-'.$post->request_id));
-
-	        foreach($rooms_users->result() as $key => $value){
-	        	if($value->room_user_id == $post->user_id){
-	        		$data['message_type']= 'send'; 
-	        	}else{
-	        		$data['message_type'] 	 = 'received'; 
-	        	}
-	        	$data['message_content'] = $post->message;
-		        $data['message_user_id'] = $value->room_user_id;
-		        $data['message_room_name'] = 'request-room-'.$post->request_id;
-		        $this->ConversationsModel->save_message($data);
-	        }
-
+			$data['message_content'] = $post->message;
+			$data['message_user_id'] = $post->user_id;
+			$data['message_room_name'] = 'request-room-'.$post->request_id;
+			$this->ConversationsModel->save_message($data);
 	        $this->api_return(array('status' =>true,'message' =>
 	        		"Message Send Succefully ! "),self::HTTP_OK);exit();
     	}catch (Exception $e) {
@@ -118,7 +109,7 @@ class Conversations extends API_Controller {
 	 * @date : 2022-09
 	 * @about: This method use for fetch message by rooms 
 	 * */
-	 public function getchat(){
+	public function getchat(){
 	    try
     	{	
     		$this->_apiConfig([
@@ -129,9 +120,17 @@ class Conversations extends API_Controller {
 	        if(empty($post->request_id) || !isset($post->request_id)){
 		        $this->api_return(array('status' =>false,'message' => lang('error_request_id_missing')),self::HTTP_BAD_REQUEST);exit();
 	        }
-
+			if(empty($post->user_id) || !isset($post->user_id)){
+		        $this->api_return(array('status' =>false,'message' => lang('error_user_id_missing')),self::HTTP_BAD_REQUEST);exit();
+	        }
 	        $chating = $this->ConversationsModel->fetch_message_by_rooms(array('message_room_name'=>'request-room-'.$post->request_id));
-
+			foreach($chating->result() as $key => $data){
+				if($post->user_id == $data->message_user_id){
+					$chating->result()[$key]->message_type = "send";
+				}else{
+					$chating->result()[$key]->message_type = "received";
+				}
+			}
 	        $this->api_return(array('status' =>true,'message' =>
 	        		lang('data_found'),'data'=>$chating->result()),self::HTTP_OK);exit();
     	}catch (Exception $e) {

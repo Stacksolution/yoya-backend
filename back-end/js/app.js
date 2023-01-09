@@ -33,6 +33,9 @@ File: Main Js File
         // === following js will activate the menu in left side bar based on url ====
         $("#sidebar-menu a").each(function () {
             var pageUrl = window.location.href.split(/[?#]/)[0];
+            let urlToarray = pageUrl.split('/');
+            let currentUrl = this.href.split('/');
+
             if (this.href == pageUrl) {
                 $(this).addClass("active");
                 $(this).parent().addClass("mm-active"); // add active to li of the current link
@@ -41,6 +44,17 @@ File: Main Js File
                 $(this).parent().parent().parent().addClass("mm-active");
                 $(this).parent().parent().parent().parent().addClass("mm-show"); // add active to li of the current link
                 $(this).parent().parent().parent().parent().parent().addClass("mm-active");
+            } else {
+                console.log(currentUrl[5], urlToarray[5])
+                if (urlToarray[5] == currentUrl[5] && urlToarray[6] == currentUrl[5]) {
+                    $(this).addClass("active");
+                    $(this).parent().addClass("mm-active"); // add active to li of the current link
+                    $(this).parent().parent().addClass("mm-show");
+                    $(this).parent().parent().prev().addClass("mm-active"); // add active class to an anchor
+                    $(this).parent().parent().parent().addClass("mm-active");
+                    $(this).parent().parent().parent().parent().addClass("mm-show"); // add active to li of the current link
+                    $(this).parent().parent().parent().parent().parent().addClass("mm-active");
+                }
             }
         });
     }
@@ -181,7 +195,7 @@ File: Main Js File
             } else {
                 $(".right-bar input:checkbox").prop('checked', false);
                 $("#" + alreadyVisited).prop('checked', true);
-               // updateThemeSetting(alreadyVisited);
+                // updateThemeSetting(alreadyVisited);
             }
         }
         $("#light-mode-switch, #dark-mode-switch, #rtl-mode-switch, #dark-rtl-mode-switch").on("change", function (e) {

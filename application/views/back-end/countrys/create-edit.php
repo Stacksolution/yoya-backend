@@ -6,11 +6,11 @@
          <?php include(__DIR__.'/../common/_message.php'); ?>
          <div class="col-12">
             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-               <h4 class="mb-sm-0 font-size-18">country</h4>
+               <h4 class="mb-sm-0 font-size-18">Countries</h4>
                <div class="page-title-right">
                   <ol class="breadcrumb m-0">
                      <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                     <li class="breadcrumb-item active">country Update</li>
+                     <li class="breadcrumb-item active">Countries Update</li>
                   </ol>
                </div>
             </div>
@@ -22,7 +22,7 @@
                <div class="card-body">
                   <div class="row mb-4">
                      <div class="col-md-8">
-                        <h4 class="card-title">country Update</h4>
+                        <h4 class="card-title">Countries Update</h4>
                      </div>
                      <div class="col-md-4 text-right">
                         <div class="card-footer bg-transparent" style="margin-top: -15px;">
@@ -82,7 +82,7 @@
                         <div class="col-md-6">
                            <label>Currency symbols</label>
                            <div class="input-group" id="Country">
-                              <input type="text" class="form-control" placeholder="Country iso code" name="currency_symbols" value="<?= set_value('currency_symbols',$country->country_currency_symbols) ?>">
+                              <input type="text" class="form-control" placeholder="Country symbol" name="currency_symbols" value="<?= set_value('currency_symbols',$country->country_currency_symbols) ?>">
                               <span class="input-group-text"><i class="bx bx-user"></i></span>
                            </div>
                            <?= form_error('currency_symbols','<div class="error">','</div>'); ?>

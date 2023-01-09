@@ -163,7 +163,7 @@ class Driver extends API_Controller {
     	{
     		$this->_apiConfig([
 	            'methods' => ['POST'],
-	           // 'key' => ['header',$this->config->item('api_fixe_header_key')],
+	            'key' => ['header',$this->config->item('api_fixe_header_key')],
 	        ]);
 	        $post = json_decode(file_get_contents('php://input'));
 	        if(empty($post->user_id) || !isset($post->user_id)){
@@ -202,6 +202,36 @@ class Driver extends API_Controller {
 	        }
 	    } catch (Exception $e) {
    		 	$this->api_return(array('status' =>false,'message' => $e->getMessage()),self::HTTP_SERVER_ERROR);exit();
+		}
+	}
+
+	public function remove(){
+		try
+    	{
+    		$this->_apiConfig([
+	            'methods' => ['POST'],
+	            'key' => ['header',$this->config->item('api_fixe_header_key')],
+	        ]);
+	        $post = json_decode(file_get_contents('php://input'));
+	        if(empty($post->user_id) || !isset($post->user_id)){
+		        $this->api_return(array('status' =>false,'message' => lang('error_user_id_missing')),self::HTTP_BAD_REQUEST);exit();
+	        }
+
+			$wallet = $this->WalletsModel->balance(array('wallet_user_id'=>$post->user_id));
+			if($wallet < 0){
+				$this->api_return(array('status' =>false,'message' => "Your wallet amount is due to not remove and deactivated account. before deleting account clear due and try again Thank You !"),self::HTTP_OK);exit();
+			}
+
+			$data['user_is_deleted'] = 1;
+			$data['user_deleted_at'] = date('Y-m-d H:i:s');
+
+			if($this->UsersModel->update(array('user_id'=>$post->user_id),$data)){
+	        	$this->api_return(array('status' =>true,'message' => "Your Account remove request successfully sent !"),self::HTTP_OK);exit();
+	        }else{
+	        	$this->api_return(array('status' =>false,'message' => lang('server_error')),self::HTTP_BAD_REQUEST);exit();
+	        }
+		} catch (Exception $e) {
+			$this->api_return(array('status' =>false,'message' => $e->getMessage()),self::HTTP_SERVER_ERROR);exit();
 		}
 	}
 }

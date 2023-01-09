@@ -8,39 +8,39 @@ class Stage extends API_Controller {
 	 * @date : 2022-07-23
 	 * @about: This method use for check application stage 
 	 * */
-	 public function customer(){
-	     try
-    	{
-    	    $this->_apiConfig([
-	            'methods' => ['POST'],
-	            'key' => ['header',$this->config->item('api_fixe_header_key')],
-	        ]);
-	        $post = json_decode(file_get_contents('php://input'));
-	        if(empty($post->user_id) || !isset($post->user_id)){
-		        $this->api_return(array('status' =>false,'message' => lang('error_user_id_missing')),self::HTTP_BAD_REQUEST);exit();
-	        }
-	        $stages = array('stage'=>'idle','message'=>'Your request and booking is clear !');
-	        
-	        $bookings = $this->BookingModel->check_booking_stage(array('booking_user_id'=>$post->user_id),array('booking_accepted'));
-	        if($bookings->num_rows() > 0){
-	            $stages = array('stage'=>'booking_accepted','message'=>'your booking is accepted Or on the way please stay this page !');
-	        }
-	        
-	        $bookings = $this->BookingModel->check_booking_stage(array('booking_user_id'=>$post->user_id),array('booking_started','booking_reached'));
-	        if($bookings->num_rows() > 0){
-	            $stages = array('stage'=>'booking_started','message'=>'your booking is ongoing Or on the way please stay this page !');
-	        }
-	        
-	        $request = $this->RequestModel->chekc_request_stage(array('request_user_id'=>$post->user_id,'request_status'=>'1'));
-	        if($request->num_rows() > 0){
-	            $stages = array('stage'=>'request_pending','message'=>'your request is pending Or process for driver search !');
-	        }
-	        
-	        $this->api_return(array('status' =>true,'message' => lang('data_found'),'data'=>$stages),self::HTTP_BAD_REQUEST);exit();
-    	}catch (Exception $e) {
-   		 	$this->api_return(array('status' =>false,'message' => $e->getMessage()),self::HTTP_SERVER_ERROR);exit();
-		}
-	 }
+	public function customer(){
+		try
+	   {
+		   $this->_apiConfig([
+			   'methods' => ['POST'],
+			   'key' => ['header',$this->config->item('api_fixe_header_key')],
+		   ]);
+		   $post = json_decode(file_get_contents('php://input'));
+		   if(empty($post->user_id) || !isset($post->user_id)){
+			   $this->api_return(array('status' =>false,'message' => lang('error_user_id_missing')),self::HTTP_BAD_REQUEST);exit();
+		   }
+		   $stages = array('stage'=>'idle','message'=>'Your request and booking is clear !');
+		   
+		   $bookings = $this->BookingModel->check_booking_stage(array('booking_user_id'=>$post->user_id),array('booking_accepted'));
+		   if($bookings->num_rows() > 0){
+			   $stages = array('stage'=>'booking_accepted','message'=>'your booking is accepted Or on the way please stay this page !','data'=>$bookings->row());
+		   }
+		   
+		   $bookings = $this->BookingModel->check_booking_stage(array('booking_user_id'=>$post->user_id),array('booking_started','booking_reached'));
+		   if($bookings->num_rows() > 0){
+			   $stages = array('stage'=>'booking_started','message'=>'your booking is ongoing Or on the way please stay this page !','data'=>$bookings->row());
+		   }
+		   
+		   $request = $this->RequestModel->chekc_request_stage(array('request_user_id'=>$post->user_id,'request_status'=>'1'));
+		   if($request->num_rows() > 0){
+			   $stages = array('stage'=>'request_pending','message'=>'your request is pending Or process for driver search !','data'=>$request->row());
+		   }
+		   
+		   $this->api_return(array('status' =>true,'message' => lang('data_found'),'data'=>$stages),self::HTTP_BAD_REQUEST);exit();
+	   }catch (Exception $e) {
+			   $this->api_return(array('status' =>false,'message' => $e->getMessage()),self::HTTP_SERVER_ERROR);exit();
+	   }
+	}
 	 
 	 /**
 	 * @method : driver()

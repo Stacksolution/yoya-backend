@@ -38,16 +38,16 @@
                      <table id="datatable-buttons" class="table table-bordered dt-responsive nowrap w-100">
                         <thead class="table-light">
                            <tr>
-                              <th class="align-middle">Sr.</th>
-                              <th class="align-middle">Discount Code </th>
-                              <th class="align-middle">Country Name</th>
-                              <th class="align-middle">State  Name</th>
-                              <th class="align-middle">City Name</th>
-                              <th class="align-middle">Start  date</th>
-                              <th class="align-middle">End date</th>
-                              <th class="align-middle">Minimum Amount</th>
-                              <th class="align-middle">User At Uses</th>
-                              <th class="align-middle">Action</th>
+                              <th>Sr.</th>
+                              <th>Discount Code </th>
+                              <th>Country</th>
+                              <th>State</th>
+                              <th>City</th>
+                              <th>Start Date|End Date</th>
+                              <th>Discount</th>
+                              <th>Minimum Amount</th>
+                              <th>User At Uses</th>
+                              <th>Action</th>
                            </tr>
                         </thead>
                         <tbody>
@@ -55,11 +55,11 @@
                            <tr>
                               <td><a href="javascript: void(0);" class="text-body fw-bold">#<?= $key + 1 ?></a> </td>
                               <td><?= $data->discount_code ?></td>
-                              <td><?= $data->country_name ?></td>
-                              <td><?= $data->state_name ?></td>	
-                              <td><?= $data->city_name ?></td>
-                              <td><?= dateFormat($data->discount_start_date) ?></td>
-                              <td><?= dateFormat($data->discount_end_date) ?></td>
+                              <td><?= $data->country_name !="" ? $data->country_name : '--' ?></td>
+                              <td><?= $data->state_name !='' ? $data->state_name : '--' ?></td>	
+                              <td><?= $data->city_name !="" ? $data->city_name : "--" ?></td>
+                              <td><?= dateFormat($data->discount_start_date) ?> To <?= dateFormat($data->discount_end_date) ?></td>
+                              <td><?= $data->discount_value ?> - <?= $data->discount_type?></td>
                               <td><?= $data->discount_minimum_amount?></td>
                               <td><?= $data->discount_user_uses_at_time?></td>
                               <td>
@@ -79,7 +79,6 @@
    </div>
    <!-- container-fluid -->
 </div>
-
 <!-- End Page-content -->
 <?php include(__DIR__.'/../common/_footer.php'); ?>
 <script src="<?= base_url('back-end/libs/datatables.net/js/jquery.dataTables.min.js') ?>"></script>
@@ -95,25 +94,3 @@
 <script src="<?= base_url('back-end/libs/datatables.net-buttons/js/buttons.colVis.min.js') ?>"></script>
 <!-- Datatable init js -->
 <script src="<?= base_url('back-end/js/pages/datatables.init.js') ?>"></script>
-
-<script type="text/javascript">
-   /*for vehicle active*/
-   $(document).on('change','.vehicle-ststus',function(){
-    var _this = $(this),_data_id,_data_status;
-    _data_id = _this.data('id');
-    _data_status = '0';
-    if (_this.prop('checked') == true){ 
-       _data_status = '1';
-    }
-      $.ajax({
-        method: "POST",
-        url: "<?= base_url('admin/vehicle/vehiclestatus') ?>",
-        data: { vehicle_id: _data_id, status: _data_status }
-
-      }).done(function(response) {
-         console.log(response);
-      }).fail(function(errors){
-         console.log(errors);
-      });
-   })
-   </script>

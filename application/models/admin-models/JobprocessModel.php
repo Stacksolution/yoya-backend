@@ -88,7 +88,7 @@ class JobprocessModel extends CI_Model {
         }
         $this->db->order_by('job_process_name','asc');
         $query = $this->db->get($this->db->dbprefix('job_process'));
-        $data[''] = "Select job process";
+        $data[''] = "--Select job process--";
         foreach ($query->result_array() as $row) {
             $data[$row['job_process_id']] = $row['job_process_name'];
         }

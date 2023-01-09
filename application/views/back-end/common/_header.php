@@ -95,14 +95,13 @@
                   </div>
                   <div class="dropdown d-inline-block">
                      <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                     <img class="rounded-circle header-profile-user" src="<?= base_url('back-end') ?>/images/users/avatar-1.jpg" alt="Header Avatar">
+                     <img class="rounded-circle header-profile-user" src="<?= uploads_image('/images/users/avatar-1.jpg') ?>" alt="Header Avatar">
                      <span class="d-none d-xl-inline-block ms-1" key="t-henry"><?= $this->session->userdata('user_name'); ?></span>
                      <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                      </button>
                      <div class="dropdown-menu dropdown-menu-end">
-                        <!-- item-->
                         <a class="dropdown-item" href="<?= site_url('admin/user/profile') ?>"><i class="bx bx-user font-size-16 align-middle me-1"></i> <span key="t-profile">Profile</span></a>
-                        <a class="dropdown-item text-danger" href="auth-login.html"><i class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i> <span key="t-logout">Logout</span></a>
+                        <a class="dropdown-item text-danger" href="<?= site_url('admin/user/logout') ?>"><i class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i> <span key="t-logout">Logout</span></a>
                      </div>
                   </div>
                </div>

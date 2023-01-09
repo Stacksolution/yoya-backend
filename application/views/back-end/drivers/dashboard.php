@@ -50,7 +50,7 @@
                      <div class="col-sm-8">
                         <div class="pt-4">
                            <div class="mt-4">
-                              <a href="<?= site_url('admin/drivers/document/'.$drivers->user_id) ?>" class="btn btn-primary waves-effect waves-light btn-sm">Check Kyc<i class="mdi mdi-arrow-right ms-1"></i></a>
+                              <a href="<?= site_url('admin/document/uploads/'.$drivers->user_id) ?>" class="btn btn-primary waves-effect waves-light btn-sm">Check Kyc<i class="mdi mdi-arrow-right ms-1"></i></a>
                            </div>
                         </div>
                      </div>
@@ -151,7 +151,7 @@
                         <div class="d-flex">
                            <div class="flex-grow-1">
                               <p class="text-muted fw-medium">Wallet balance</p>
-                              <h5 class="mb-0"><?= number_format($walletsBlance) ?></h5>
+                              <h5 class="mb-0"><?= @number_format($walletsBlance) ?></h5>
                            </div>
                            <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
                               <span class="avatar-title rounded-circle bg-primary">

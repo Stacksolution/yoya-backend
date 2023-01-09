@@ -8,7 +8,6 @@ class Rental extends API_Controller {
 	 * @about: This method use for fetch packages list
 	 * 
 	 * */
-
 	public function packages(){
 		try
     	{	
@@ -165,29 +164,41 @@ class Rental extends API_Controller {
 				);
 			}
 			$request_data['request_amout_details'] = json_encode($amount_details);
+
 	        $request_data['request_user_id'] = $post->user_id;
-	        $request_data['request_pickup_latitude'] = $post->pickup_latitude;
-	        $request_data['request_pickup_longitude'] = $post->pickup_longitude;
-	        $request_data['request_pickup_address'] = $post->pickup_address;
-	        $request_data['request_pickup_city'] = $post->pickup_city;
-	        $request_data['request_pickup_city_id'] = $cities->city_id;
-	        $request_data['request_pickup_state_id'] = $cities->city_state_id;
-	        $request_data['request_pickup_country_id'] = $cities->city_country_id;
-	        $request_data['request_distance_value'] = $total_distance;
-	        $request_data['request_distance_text'] = $total_distance .' Km.';
-	        $request_data['request_time_text'] = $total_time . ' minutes';
-	        $request_data['request_time_value'] = $total_time;
-	        $request_data['request_vehicle_id']   = $post->vehicle_id;
-	        $request_data['request_payments_mode']   = json_encode($post->payment_method);
-	        $request_data['request_total_amount'] = $base_price;
-	        $request_data['request_package_details'] = json_encode(array('rental_id'=>$rental_id,'city_id'=>$city_id));
-	        $request_data['request_mode'] = 'rental_cab';
-	        $request_data['request_booking_type'] = 'current_ride';
-	        $request_data['request_booking_date'] = $post->booking_date;
-	        $request_data['request_status'] = 1;
+			$users = $this->UsersModel->fetch_user_data_for_request_by_id($post->user_id);
+	        $request_data['request_user_details'] = json_encode($users);
+
+	        $request_data['request_pickup_latitude'] 	= $post->pickup_latitude;
+	        $request_data['request_pickup_longitude'] 	= $post->pickup_longitude;
+	        $request_data['request_pickup_address'] 	= $post->pickup_address;
+	        $request_data['request_pickup_city'] 		= $post->pickup_city;
+	        $request_data['request_pickup_city_id'] 	= $cities->city_id;
+	        $request_data['request_pickup_state_id'] 	= $cities->city_state_id;
+	        $request_data['request_pickup_country_id'] 	= $cities->city_country_id;
+	        $request_data['request_distance_value'] 	= $total_distance;
+	        $request_data['request_distance_text'] 		= $total_distance .' Km.';
+	        $request_data['request_time_text'] 			= $total_time . ' minutes';
+	        $request_data['request_time_value'] 		= $total_time;
+	        $request_data['request_vehicle_id']   		= $post->vehicle_id;
+	        $request_data['request_payments_mode']   	= json_encode($post->payment_method);
+	        $request_data['request_total_amount'] 		= $base_price;
+	        $request_data['request_package_details'] 	= json_encode(array('rental_id'=>$rental_id,'city_id'=>$city_id));
+	        $request_data['request_mode'] 				= 'rental_cab';
+	        $request_data['request_booking_type'] 		= 'current_ride';
+	        $request_data['request_booking_date'] 		= $post->booking_date;
+	        $request_data['request_status'] 			= 1;
 			
 	        if($request_id = $this->RequestModel->save($request_data)){
 	        	if(in_array('cash',$post->payment_method,true)){
+		        	/*==============================================
+		        	  ===================send request===============*/
+		        	  $this->under_radius_send_request($request_id);
+		        	/*==============================================
+		        	  ===================send request===============*/
+		        	$result = $this->RequestModel->fetch_single(array('request_id'=>$request_id));
+	        		$this->api_return(array('status' =>true,'message' => lang('ride_request_send'),'data'=>$result,'request_id'=>$request_id),self::HTTP_OK);exit();
+		        }else if(in_array('wallet',$post->payment_method,true)){
 		        	/*==============================================
 		        	  ===================send request===============*/
 		        	  $this->under_radius_send_request($request_id);
@@ -253,5 +264,171 @@ class Rental extends API_Controller {
 		if(!empty($request_log)){
 		    $this->RequestLogModel->insert_batch($request_log);
 		}
+	}
+	/**
+	 * @method : accepte()
+	 * @date : 2022-12-05
+	 * @about: This method use for accepte request from driver side and 
+	 * geting response from user application by socket io
+	 * */
+	public function accepte(){
+		try
+    	{
+    		$this->_apiConfig([
+	            'methods' => ['POST'],
+	            //'key' => ['header',$this->config->item('api_fixe_header_key')],
+	        ]);
+			$post = json_decode(file_get_contents('php://input'));
+    		if(empty($post->user_id) || !isset($post->user_id)){
+		        $this->api_return(array('status' =>false,'message' => lang('error_user_id_missing')),self::HTTP_BAD_REQUEST);exit();
+	        }
+	        if(empty($post->request_id) || !isset($post->request_id)){
+		        $this->api_return(array('status' =>false,'message' => lang('error_request_id_missing')),self::HTTP_BAD_REQUEST);exit();
+	        }
+	        //check request se
+	        if(!$this->RequestModel->is_exist(array('request_id'=>$post->request_id))){
+	        	$this->api_return(array('status' =>false,'message' => lang('data_not_found')),self::HTTP_BAD_REQUEST);exit();
+	        }
+			$checkrequest = $this->BookingModel->fetch_booking(array('booking_request_id'=>$post->request_id));
+	        if(!empty($checkrequest)){
+	            $this->api_return(array('status' =>false,'message' => "Booking Already Accepted !"),self::HTTP_OK);exit();
+	        }
+			
+			$booking_status = $this->BookingModel->booking_status('booking_accepted');
+	        $booking_id = $this->BookingModel->booking_id_ganrate();
+	        $request = $this->RequestModel->fetch_single(array('request_id'=>$post->request_id));
+	        $driver_details = $this->UsersModel->fetch_user_data_for_request_by_id($post->user_id);
+			
+			$request_data['request_status'] = 2; //for request is accepted or search
+		    $this->RequestModel->update(array('request_id'=>$post->request_id),$request_data);
+			
+			$booking['booking_order_id'] 		= $booking_id;
+	        $booking['booking_user_id'] 		= $request->request_user_id;
+	        $booking['booking_driver_id'] 		= $post->user_id;
+	        $booking['booking_driver_details'] 	= json_encode($driver_details);
+	        $booking['booking_vehicle_id'] 		= $request->request_vehicle_id;
+	        $booking['booking_process_id'] 		= $request->request_process_id;
+	        $booking['booking_user_details']	= $request->request_user_details;
+			$booking['booking_total_amount'] 	= $request->request_total_amount;
+	        $booking['booking_amount_details'] 	= $request->request_coupon_details;
+	        $booking['booking_pickup_latitude'] = $request->request_pickup_latitude;
+	        $booking['booking_pickup_longitude']= $request->request_pickup_longitude;
+	        $booking['booking_pickup_city'] 	= $request->request_pickup_city;
+	        $booking['booking_pickup_city_id']  = $request->request_pickup_city_id;
+	        $booking['booking_pickup_state_id'] = $request->request_pickup_state_id;
+	        $booking['booking_pickup_country_id']= $request->request_pickup_country_id;
+	        $booking['booking_pickup_address'] 	= $request->request_pickup_address;
+	        $booking['booking_distance_value'] 	= $request->request_distance_value;
+	        $booking['booking_distance_text'] 	= $request->request_distance_text;
+	        $booking['booking_time_value'] 		= $request->request_time_value;
+	        $booking['booking_time_text'] 		= $request->request_time_text;
+	        $booking['booking_payments_status'] = $request->request_payments_status;
+	        $booking['booking_payments_mode'] 	= $request->request_payments_mode;
+	        $booking['booking_transaction_id'] 	= $request->request_transaction_id;
+	        $booking['booking_booking_date'] 	= $request->request_booking_date;
+	        $booking['booking_types'] 			= $request->request_booking_type;
+	        $booking['booking_status'] 			= $booking_status['status'];
+	        $booking['booking_display_status'] 	= $booking_status['display_status'];
+	        $booking['booking_status_history'] 	= $booking_status['history'];
+	        $booking['booking_otp'] 			= otp_generate(4);
+	        $booking['booking_request_id']  	= $request->request_id;
+			$booking['booking_tax_amount']  	= $request->request_tax_amount;
+			if($booking_id = $this->BookingModel->save($booking)){
+				$result    = $this->BookingModel->fetch_booking(array('booking_id'=>$booking_id));
+	            $this->api_return(array('status' =>true,'message' => lang('request_accepted'),'data'=>$result),self::HTTP_OK);exit();
+			}else{
+				$this->api_return(array('status' =>false,'message' => lang('server_error')),self::HTTP_OK);exit();
+			}
+		}catch (Exception $e) {
+			$this->api_return(array('status' =>false,'message' => $e->getMessage()),self::HTTP_SERVER_ERROR);exit();
+		}
+	}
+
+	/**
+	 * @method : cancel()
+	 * @date : 2022-12-05
+	 * @about: This method use for cancelled request
+	 * */
+	public function cancel(){
+		try
+	   {
+		   $this->_apiConfig([
+			   'methods' => ['POST'],
+			   //'key' => ['header',$this->config->item('api_fixe_header_key')],
+		   ]);
+		   $post = json_decode(file_get_contents('php://input'));
+		   if(empty($post->request_id) || !isset($post->request_id)){
+			   $this->api_return(array('status' =>false,'message' => lang('error_user_id_missing')),self::HTTP_BAD_REQUEST);exit();
+		   }
+		   $request_id = $post->request_id;
+		   //check request se
+		   if(!$this->RequestModel->is_exist(array('request_id'=>$request_id))){
+			   $this->api_return(array('status' =>false,'message' => lang('data_not_found')),self::HTTP_BAD_REQUEST);exit();
+		   }
+		   
+		   $request_data['request_status'] = 3; //for request is pendig or search
+		   $this->RequestModel->update(array('request_id'=>$request_id),$request_data);
+		   $this->api_return(array('status' =>true,'message' =>'Request cancelled !'),self::HTTP_OK);exit();
+	   }catch (Exception $e) {
+			   $this->api_return(array('status' =>false,'message' => $e->getMessage()),self::HTTP_SERVER_ERROR);exit();
+	   }
+	}
+
+	/**
+	 * @method : start()
+	 * @date : 2022-07-12
+	 * @about: This method use for start bokking
+	 * @
+	 * */
+	public function start(){
+		try
+	   {	
+		   $this->_apiConfig([
+			   'methods' => ['POST'],
+			   //'key' => ['header',$this->config->item('api_fixe_header_key')],
+		   ]);
+		   $post = json_decode(file_get_contents('php://input'));
+		   if(empty($post->request_id) || !isset($post->request_id)){
+			   $this->api_return(array('status' =>false,'message' => lang('error_request_id_missing')),self::HTTP_BAD_REQUEST);exit();
+		   }
+		   if(empty($post->pickup_longitude) || !isset($post->pickup_longitude)){
+			   $this->api_return(array('status' =>false,'message' => lang('error_pickup_longitude_missing')),self::HTTP_BAD_REQUEST);exit();
+		   }
+		   if(empty($post->pickup_latitude) || !isset($post->pickup_latitude)){
+			   $this->api_return(array('status' =>false,'message' => lang('error_pickup_latitude_missing')),self::HTTP_BAD_REQUEST);exit();
+		   }
+		   if(empty($post->booking_otp) || !isset($post->booking_otp)){
+			   $this->api_return(array('status' =>false,'message' => lang('error_otp_missing')),self::HTTP_BAD_REQUEST);exit();
+		   }
+		   
+		   $request_id = $post->request_id;
+		  
+		   $result = $this->BookingModel->fetch_booking(array('booking_request_id'=>$request_id));
+		   if(empty($result)){
+			   $this->api_return(array('status' =>false,'message' => lang('data_not_found')),self::HTTP_BAD_REQUEST);exit();
+		   }
+		   if($result->booking_otp == $post->booking_otp){
+			   $booking_status = $this->BookingModel->booking_status('booking_started',$result->booking_id);
+			   
+			   $chekpoint = $this->BookingModel->check_location_distance_point(array('booking_id'=>$result->booking_id,'booking_pickup_latitude'=>$post->pickup_latitude,'booking_pickup_longitude'=>$post->pickup_longitude));
+			   if($chekpoint->num_rows() <= 0){
+					//$this->api_return(array('status' =>false,'message' => 'You are not at pickup location. Kindly reach at puckup location to pickup the booking !'),self::HTTP_OK);exit;
+			   }
+			   
+			   $booking['booking_status'] = $booking_status['status'];
+			   $booking['booking_display_status'] = $booking_status['display_status'];
+			   $booking['booking_status_history'] = $booking_status['history'];
+			   if($this->BookingModel->update(array('booking_id'=>$result->booking_id),$booking)){
+					$result = $this->BookingModel->fetch_booking(array('booking_id'=>$result->booking_id));
+					$this->api_return(array('status' =>true,'message' => lang('booking_start'),'booking_id'=>$result->booking_id),self::HTTP_OK);exit();
+			   }else{
+				   $this->api_return(array('status' =>false,'message' => lang('server_error')),self::HTTP_OK);exit();
+			   } 
+		   }else{
+			   $this->api_return(array('status' =>false,'message' => lang('error_otp_invaild')),self::HTTP_OK);exit();
+		   }
+	   }catch (Exception $e) {
+			   $this->api_return(array('status' =>false,'message' => $e->getMessage()),self::HTTP_SERVER_ERROR);exit();
+	   }
 	}
 }

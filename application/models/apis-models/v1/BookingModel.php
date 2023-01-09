@@ -109,8 +109,11 @@ class BookingModel extends CI_Model {
 			$this->db->select('*');
 			$this->db->from($this->db->dbprefix('bookings'));
 			$this->db->where($where);
-			$this->db->where_in($where_in);
+			$this->db->where_in('booking_status',$where_in);
 			$booking = $this->db->get();
+			foreach($booking->result() as $key => $data){
+			    $booking->result()[$key]->bookings_drops = $this->BookingDropModel->fetch_all_drops(array('drop_booking_id'=>$data->booking_id))->result();
+			}
 			return $booking;
 		} catch (Exception $e) {
 		  log_message('error',$e->getMessage());

@@ -50,14 +50,14 @@
                      <div class="col-lg-6">
                        <div class="mb-3">
                            <label class="form-label">Cities</label>
-                           <?= form_dropdown('cities_id',$cities,set_value('cities_id'),'class="form-control"') ?>
+                           <?= form_dropdown('cities_id[]',$cities,set_value('cities_id'),'class="select2 form-control select2-multiple" multiple="multiple"') ?>
                            <?= form_error('cities_id', '<div class="error">', '</div>'); ?>
                        </div>
                      </div>
                      <div class="col-lg-6">
                        <div class="mb-3">
                            <label class="form-label">Job Process</label>
-                           <?= form_dropdown('process_id',$process,set_value('process_id'),'class="form-control"') ?>
+                           <?= form_dropdown('process_id[]',$process,set_value('process_id'),'class="select2 form-control select2-multiple" multiple="multiple"') ?>
                            <?= form_error('process_id', '<div class="error">', '</div>'); ?>
                        </div>
                      </div>

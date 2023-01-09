@@ -7,6 +7,7 @@ class DiscountModel extends CI_Model {
 
 	public function save($data){
 		try {
+			$this->db->set('discount_create_at',date('Y-m-d H:i:s'));
 			$return = $this->db->insert($this->db->dbprefix('discount'),$data);
 			return $this->db->insert_id();
 		}catch (Exception $e) {
@@ -16,6 +17,7 @@ class DiscountModel extends CI_Model {
 	}
    public function update($where,$data){
 		try {
+			$this->db->set('discount_create_at',date('Y-m-d H:i:s'));
 			return $this->db->where($where)->update($this->db->dbprefix('discount'),$data);
 		}catch (Exception $e){
 		  log_message('error',$e->getMessage());

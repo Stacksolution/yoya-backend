@@ -38,19 +38,19 @@
                      <table id="datatable-buttons" class="table table-bordered dt-responsive nowrap w-100">
                         <thead class="table-light">
                            <tr>
-                              <th class="align-middle">Sr.</th>
-                              <th class="align-middle">Job Process</th>
-                              <th class="align-middle">Cities</th>
-                              <th class="align-middle">Status</th>
-                              <th class="align-middle">Action</th>
+                              <th>Sr.</th>
+                              <th>Job Process</th>
+                              <th>Cities</th>
+                              <th>Status</th>
+                              <th>Action</th>
                            </tr>
                         </thead>
                         <tbody>
                            <?php foreach($jobprocess->result() as $key => $data) { ?>
                            <tr>
-                              <td><a href="javascript: void(0);" class="text-body fw-bold">#<?= $key + 1 ?></a> </td>
-                              <td><?= $data->job_process_id ?></td>
-                              <td><?= $data->cities_id ?></td>
+                              <td><?= $key + 1 ?></td>
+                              <td><?= $data->job_process_name ?></td>
+                              <td><?= $data->city_name ?></td>
                               <td>
                                  <input type="checkbox" class="jobprocess-ststus" data-id="<?= $data->process_id ?>"<?= $data->job_process_status =="1" ? "checked" : "" ?> id="jobprocess<?= $key + 1 ?>" switch="info"/>
                                  <label for="jobprocess<?= $key + 1 ?>" data-on-label="Yes" data-off-label="No"></label>
@@ -58,6 +58,7 @@
                               <td>
                                  <div class="d-flex gap-1">
                                     <a href="<?= site_url('admin/Jobprocesscites/edit/'.$data->process_id) ?>" class="btn btn-outline-secondary btn-sm"><i class="mdi mdi-pencil font-size-13"></i></a>
+                                    <a href="<?= site_url('admin/Jobprocesscites/remove/'.$data->process_id) ?>" class="btn btn-outline-danger btn-sm" nnclick="return confirm('Are you sure you want to delete this?')"><i class="mdi mdi-delete font-size-13"></i></a>
                                  </div>
                               </td>
                            </tr>

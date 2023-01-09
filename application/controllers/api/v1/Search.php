@@ -9,7 +9,7 @@ class Search extends API_Controller {
 	 * 
 	 * */
 	 public function history(){
-	     try
+	    try
     	{
     		$this->_apiConfig([
 	            'methods' => ['POST'],

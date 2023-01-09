@@ -24,18 +24,27 @@ class Jobprocesscites extends MY_AdminController {
      * @about: This method use for create Jobprocess
      */
     public function create() {
-        $this->form_validation->set_rules('process_id', 'Job Process', 'required');
-       // $this->form_validation->set_rules('cities_id', 'City Name', 'required|is_unique['.$this->db->dbprefix('job_process_cities').'.cities_id]');
-        if ($this->form_validation->run() == TRUE) {
-            $data['job_process_id'] = $this->input->post('process_id');
-            $data['cities_id'] = $this->input->post('cities_id');
-            if ($this->JobprocessCitesModel->save($data)) {
-                $this->session->set_flashdata('success', 'Jobprocess successfully marge !');
-                redirect('admin/jobprocesscites');
-            } else {
-                $this->session->set_flashdata('error', 'Oops something went wrong please try after some time!');
-                redirect('admin/jobprocesscites/create');
+        
+        if(!empty($this->input->post('process_id')) && !empty($this->input->post('cities_id'))){
+            $process = $this->input->post('process_id');
+            $cities_ids = $this->input->post('cities_id');
+
+            foreach($process as $key => $value){
+                if(!empty($value)){
+                    $data['job_process_id'] = $value;
+                    foreach($cities_ids as $key => $values){
+                        if(!empty($values)){
+                            $check = $this->JobprocessCitesModel->fetch_single(array('process_id'=>$value,'cities_id'=>$values));
+                            $data['cities_id'] =  $values;
+                            if(empty($check)){
+                                $this->JobprocessCitesModel->save($data);
+                            }
+                        }
+                    }
+                }
             }
+            $this->session->set_flashdata('success', 'Jobprocess successfully marge !');
+            redirect('admin/jobprocesscites');
         }
 
         $this->data['meta'] = array('meta_title' => 'Jobprocess Create', 'meta_description' => '');

@@ -186,6 +186,7 @@ class MY_AdminController extends MY_Controller {
 	    $this->load->model('admin-models/TransportfareModel');
         $this->load->model('admin-models/CancelationModel');
         $this->load->model('admin-models/DashboardModel');
+        $this->load->model('admin-models/ReasoncancelModel');
     }
 }
 

@@ -29,6 +29,8 @@ class JobprocessCitesModel extends CI_Model {
 		try {
 			$this->db->select('*');
 			$this->db->from($this->db->dbprefix('job_process_cities'));
+			$this->db->join($this->db->dbprefix('job_process'),$this->db->dbprefix('job_process').'.job_process_id ='.$this->db->dbprefix('job_process_cities').'.job_process_id','left');
+			$this->db->join($this->db->dbprefix('cities'),$this->db->dbprefix('cities').'.city_id ='.$this->db->dbprefix('job_process_cities').'.cities_id','left');
 			$this->db->order_by('process_id','desc');
 			$return = $this->db->get();
 			return $return;

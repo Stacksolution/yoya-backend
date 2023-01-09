@@ -10,6 +10,7 @@ class UsersModel extends CI_Model {
 			$this->db->select('*');
 			$this->db->from($this->db->dbprefix('users'));
 			$this->db->where('user_id',$user_id);
+			$this->db->where('user_is_deleted','0');
 			$checkuser = $this->db->get()->row();
 			return $checkuser;
 		} catch (Exception $e) {
@@ -23,6 +24,7 @@ class UsersModel extends CI_Model {
 			$this->db->select('*');
 			$this->db->from($this->db->dbprefix('users'));
 			$this->db->where('user_id',$this->session->userdata('user_id'));
+			$this->db->where('user_is_deleted','0');
 			$checkuser = $this->db->get()->row();
 			return $checkuser;
 		} catch (Exception $e) {
@@ -35,6 +37,7 @@ class UsersModel extends CI_Model {
 		try {
 			$this->db->select('*');
 			$this->db->from($this->db->dbprefix('users'));
+			$this->db->where('user_is_deleted','0');
 			$this->db->where($where);
 			$checkuser = $this->db->get()->num_rows();
 			if($checkuser > 0){
@@ -74,6 +77,7 @@ class UsersModel extends CI_Model {
 			$this->db->select('*');
 			$this->db->from($this->db->dbprefix('users'));
 			$this->db->where('user_verification_code',$otp_text);
+			$this->db->where('user_is_deleted','0');
 			$checkuser = $this->db->get()->num_rows();
 			if($checkuser > 0){
 				return true;

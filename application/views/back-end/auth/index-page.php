@@ -18,6 +18,7 @@
       <div class="account-pages my-5 pt-sm-5">
          <div class="container">
             <div class="row justify-content-center">
+            
                <div class="col-md-8 col-lg-6 col-xl-5">
                   <div class="card overflow-hidden">
                      <div class="bg-primary bg-soft">
@@ -50,6 +51,7 @@
                               </div>
                            </a>
                         </div>
+                        <?php include(__DIR__.'/../common/_message.php'); ?>
                         <div class="p-2">
                             <?= form_open('','class="form-horizontal"') ?>
                               <div class="mb-3">

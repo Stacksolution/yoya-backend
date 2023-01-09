@@ -39,5 +39,15 @@ class User extends MY_AdminController {
 		$this->load->view('back-end/user/user-profile-page',$this->data);    
 	    
 	}
-	
+
+	public function logout(){
+		$this->session->set_flashdata('success','Logout successfully !');
+		$unset_userdata['user_name']  = '';
+		$unset_userdata['user_email'] = '';
+		$unset_userdata['user_id']    = '';
+		$unset_userdata['user_is_loggedin'] = false;
+		$this->session->unset_userdata($unset_userdata);
+		$this->session->sess_destroy();
+		redirect('admin/login');
+	}
 }
